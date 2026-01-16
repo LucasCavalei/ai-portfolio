@@ -1,37 +1,17 @@
-from langchain_groq import ChatGroq
-from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
-from dotenv import load_dotenv
-import os
+CAMINHO_DB = "db"
 
-load_dotenv()
-groq_api_key = os.getenv('GROQ_API_KEY')
-# 2. Inicialize o modelo
-# Modelos populares: "llama-3.3-70b-versatile" ou "mixtral-8x7b-32768"
-chat = ChatGroq(
-    model="llama-3.3-70b-versatile",
-    temperature=0.7,
-    api_key=groq_api_key
-)
+prrompt_template = """ Responda a pergunta do usuario:
+{pergunta}
 
-# 3. Lista para armazenar o histórico da conversa
-historico = [
-    SystemMessage(content="Você é um assistente prestativo e responde em português.")
-]
+Com base nessas informacoes:
 
-print("--- Chatbot Groq + LangChain (digite 'sair' para encerrar) ---")
+{Base_conhecimento}
 
-while True:
-    pergunta_usuario = input("\nVocê: ")
-    
-    if pergunta_usuario.lower() in ["sair", "exit", "quit"]:
-        break
+Se você não encontrar a resposta para a pergunta do usuario nessas informacoes, responda não sei te dizer isso"""
 
-    # Adiciona a pergunta do usuário ao histórico
-    historico.append(HumanMessage(content=pergunta_usuario))
+pergunta = input("Escreva sua pergunta: ")
 
-    # Chama o modelo passando todo o histórico
-    resposta = chat.invoke(historico)
-    
-    # Exibe a resposta e guarda no histórico para o bot ter contexto
-    print(f"Bot: {resposta.content}")
-    historico.append(AIMessage(content=str(resposta.content)))
+#carregar o banco de dados
+db = Chroma()
+
+# comparar a pergunta do usuario (embeddings) com o banco de dados

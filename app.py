@@ -11,10 +11,18 @@ app = Flask(__name__)
 app.json = CustomJSONProvider(app)
 CORS(app)
 
-@app.route('/')
+@app.route('/api/chat', methods=['POST'])
 def endpoint_chat():
     try:
-        conteudo_resposta = executar_chat("me fale de uma tecnica de venda bastante eficiente")
+        # Pega os dados enviados pelo React (body do request)
+        dados = request.json
+        pergunta_usuario = dados.get("pergunta")
+        
+        if not pergunta_usuario:
+            return jsonify({"status": "erro", "mensagem": "Pergunta vazia"}), 400
+
+        # Chama a sua lógica do main.py com a pergunta dinâmica
+        conteudo_resposta = executar_chat(pergunta_usuario)
         # Agora o Flask retorna um objeto JSON real para o navegador
         return jsonify({
             "status": "sucesso",

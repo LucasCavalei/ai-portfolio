@@ -54,35 +54,27 @@ with_message_history = RunnableWithMessageHistory(
     history_messages_key="history",
 )
 
-def perguntar():
+def executar_chat(pergunta):
     # ID da sessão (Poderia ser o ID do usuário vindo do WhatsApp ou Chat)
     config = {"configurable": {"session_id": "usuario_teste_123"}}
     
-    while True:
-        pergunta = input("\nEscreva sua pergunta (ou 'sair'): ")
-        if pergunta.lower() == 'sair':
-            break
+    # BUSCA NO RAG (Igual ao seu código original)
+    resultados = vector_db.similarity_search_with_relevance_scores(pergunta, k=4)
+    
+    if len(resultados) == 0 or resultados[0][1] < 0.3: # Ajustei o threshold para 0.3
+        base_conhecimento = "Nenhuma informação relevante encontrada no banco de dados."
+    else:
+        textos_resultados = [res[0].page_content for res in resultados]
+        base_conhecimento = "\n\n-----------------\n\n".join(textos_resultados)
 
-        # BUSCA NO RAG (Igual ao seu código original)
-        resultados = vector_db.similarity_search_with_relevance_scores(pergunta, k=4)
-        
-        if len(resultados) == 0 or resultados[0][1] < 0.3: # Ajustei o threshold para 0.3
-            base_conhecimento = "Nenhuma informação relevante encontrada no banco de dados."
-        else:
-            textos_resultados = [res[0].page_content for res in resultados]
-            base_conhecimento = "\n\n-----------------\n\n".join(textos_resultados)
+    # EXECUÇÃO COM HISTÓRICO
+    # O 'with_message_history' injeta automaticamente o histórico na variável {history}
+    resposta = with_message_history.invoke(
+        {
+            "pergunta": pergunta, 
+            "Base_conhecimento": base_conhecimento
+        },
+        config=config
+    )
 
-        # EXECUÇÃO COM HISTÓRICO
-        # O 'with_message_history' injeta automaticamente o histórico na variável {history}
-        resposta = with_message_history.invoke(
-            {
-                "pergunta": pergunta, 
-                "Base_conhecimento": base_conhecimento
-            },
-            config=config
-        )
-
-        print("\nBot:", resposta.content)
-
-if __name__ == "__main__":
-    perguntar()
+    return resposta.content

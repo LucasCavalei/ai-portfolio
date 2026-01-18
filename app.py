@@ -1,9 +1,14 @@
 from flask import Flask,  request, jsonify
 from flask_cors import CORS
 from main import executar_chat
+from flask.json.provider import DefaultJSONProvider
+
+class CustomJSONProvider(DefaultJSONProvider):
+    ensure_ascii = False
+    indent = 2
 
 app = Flask(__name__)
-
+app.json = CustomJSONProvider(app)
 CORS(app)
 
 @app.route('/')

@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_cohere import CohereEmbeddings
 from langchain_core.prompts import PromptTemplate
 from langchain_groq import ChatGroq
 from langchain_core.runnables.history import RunnableWithMessageHistory
@@ -31,7 +32,8 @@ Instruções:
 3. Pode ser habilidosa sociavel."""
 
 # 2. Configuração Global (fora da função para não recarregar toda hora)
-funcao_embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+#funcao_embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+funcao_embedding = CohereEmbeddings( model="embed-multilingual-v3.0", cohere_api_key=os.getenv("COHERE_API_KEY"))
 vector_db = Chroma(persist_directory=CAMINHO_DB, embedding_function=funcao_embedding)
 model = ChatGroq(model="llama-3.3-70b-versatile")
 

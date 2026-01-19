@@ -3,12 +3,17 @@ from dotenv import load_dotenv
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_cohere import CohereEmbeddings
+from langchain_pinecone import PineconeVectorStore
+from pinecone import Pinecone
 from langchain_core.prompts import PromptTemplate
 from langchain_groq import ChatGroq
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_community.chat_message_histories import ChatMessageHistory
 
 load_dotenv()
+PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
+PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
+
 
 CAMINHO_DB = "db"
 
@@ -34,7 +39,11 @@ Instruções:
 # 2. Configuração Global (fora da função para não recarregar toda hora)
 #funcao_embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 funcao_embedding = CohereEmbeddings( model="embed-multilingual-v3.0", cohere_api_key=os.getenv("COHERE_API_KEY"))
-vector_db = Chroma(persist_directory=CAMINHO_DB, embedding_function=funcao_embedding)
+#vector_db = Chroma(persist_directory=CAMINHO_DB, embedding_function=funcao_embedding)
+
+pc = Pinecone(api_key=PINECONE_API_KEY)
+vector_db = PineconeVectorStore(index_name=PINECONE_INDEX_NAME, embedding=funcao_embedding, pinecone_api_key=PINECONE_API_KEY)
+
 model = ChatGroq(model="llama-3.3-70b-versatile")
 
 # 3. Gerenciamento de Memória

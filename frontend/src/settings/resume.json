@@ -1,0 +1,54 @@
+{
+    "basics": {
+        "name": "Lucas Rodrigues",
+        "label": "Desenvolvedor Web",
+        "email": "lucassenai1206@gmail.com",
+        "phone": "(92)993368783",
+        "picture": "mt.png",
+        "x_title": "Olá, eu sou",
+        "job1": "Desenvolvedor",
+        "job2": "Web",
+        "description": "Olá! Eu sou Lucas! Um entusiasta de desenvolvimento web. Sempre pronto para novos desafios! Estou aqui para ajudar a criar sites incríveis e funcionais.",
+        "summary": "baseado em Sua Manaus, Amazonas.",
+        "keywords": "personal,website,portfolio,template,kit,mark,tan,webdev,web,developer,angeles,philippines,react,github,linkedin,google,gitlab,telegram,material,design,ui,webapp,markdown",
+        "url": "",
+        "location": {
+            "address": "Sua Rua, Número",
+            "postalCode": "XXXXX-XXX",
+            "city": "Sua Cidade",
+            "country": "Brasil",
+            "countryCode": "BR",
+            "region": "Seu Estado"
+        },
+        "profiles": [
+            {
+                "network": "Google",
+                "username": "lucassenai@gmail.com",
+                "url": "email prara :lucassenai1206@gmail.com",
+                "x_icon": "fab fa-google"
+            },
+            {
+                "network": "LinkedIn",
+                "username": "Lucas Rodrigues",
+                "url": "https://www.linkedin.com/in/lucas-cavaleiro-340677175/",
+                "x_icon": "fab fa-linkedin-in"
+            },
+            {
+                "network": "GitHub",
+                "username": "LucasCavalei",
+                "url": "https://github.com/LucasCavalei",
+                "x_icon": "fab fa-github"
+            }
+        ]
+    },
+    
+    "skills": [
+        {
+            "name": "Web Development",
+            "level": "Master",
+            "keywords": ["HTML", "CSS", "Javascript"]
+        }
+    ]
+    
+    
+}

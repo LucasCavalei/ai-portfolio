@@ -1,105 +1,93 @@
-/* eslint-disable no-unused-vars */
-import React from "react";
-import { useRef } from "react";
-import { Container, Typography, TextField, Button } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-import { TextDecrypt } from "../content/TextDecrypt";
-import Swal from 'sweetalert2';
-
+import React, { useRef } from 'react';
 import emailjs from '@emailjs/browser';
-
-import './Contact.css';
+import { Container, TextField, Button, Typography } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles((theme) => ({
-  main: {
-    maxWidth: '100vw',
-    marginTop: '3em',
-    marginBottom: "3em",
-  },
   form: {
     width: '100%',
+    marginTop: theme.spacing(3),
   },
-  formfield: {
-    width: '100%',
-    marginBottom: '2rem',
+  submit: {
+    margin: theme.spacing(3, 0, 2),
   },
 }));
 
-
-
 export const Contact = () => {
   const classes = useStyles();
-  const greetings = "Manda um oi.";
-
   const form = useRef();
 
   const sendEmail = (e) => {
     e.preventDefault();
 
-    emailjs.sendForm('service_8bezxog', 'template_jmsk313', form.current, 'knwNTK4YU4K30HYMd')
-      .then((result) => {
-          console.log(result.text);
-      }, (error) => {
-          console.log(error.text);
-      });
-    Swal.fire({
-      position: 'center',
-      icon: 'success',
-      title: 'You have sent an email!',
-      showConfirmButton: false,
-      timer: 1500
-    })
-    e.target.reset()
+    emailjs
+      .sendForm(
+        process.env.REACT_APP_EMAILJS_SERVICE_ID,
+        process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
+        form.current,
+        process.env.REACT_APP_EMAILJS_USER_ID // This is the Public Key fix
+      )
+      .then(
+        (result) => {
+          console.log('SUCCESS!', result.text);
+          alert('Mensagem enviada com sucesso!');
+          form.current.reset();
+        },
+        (error) => {
+          console.log('FAILED...', error.text);
+          alert('Ocorreu um erro. Verifique o console para mais detalhes.');
+        }
+      );
   };
 
-
-
-    return (
-      <section id="contact">
-        <Container component="main" className={classes.main} maxWidth="md">
-          <div className="contact">
-            <div className="_form_wrapper">
-              <form ref={form} onSubmit={sendEmail} className={classes.form}>
-                <TextField
-                  id="outlined-name-input"
-                  label="Nome"
-                  type="text"
-                  size="small"
-                  variant="filled"
-                  name="name"
-                  className={classes.formfield}
-                />
-                <TextField
-                  id="outlined-password-input"
-                  label="Email"
-                  type="email"
-                  size="small"
-                  variant="filled"
-                  name="email"
-                  className={classes.formfield}
-                />
-                <TextField
-                  id="outlined-password-input"
-                  label="Mensagem"
-                  type="textarea"
-                  size="small"
-                  multiline
-                  minRows={5}
-                  variant="filled"
-                  name="message"
-                  className={classes.formfield}
-                />
-                <button type="submit" value="Send" className="submit-btn">
-                <i className="fas fa-terminal"></i>
-                  <Typography component='span'> Mandar email</Typography>
-                </button>
-              </form>
-            </div>
-            <h1 className="contact_msg">
-              <TextDecrypt text={greetings}/>
-            </h1>
-          </div>
-        </Container>
-      </section>
+  return (
+    <Container component="section" id="contact" maxWidth="sm">
+      <Typography variant="h4" component="h2" gutterBottom align="center">
+        Entre em Contato
+      </Typography>
+      <form ref={form} onSubmit={sendEmail} className={classes.form} noValidate>
+        <TextField
+          variant="outlined"
+          margin="normal"
+          required
+          fullWidth
+          id="from_name"
+          label="Seu Nome"
+          name="from_name"
+          autoComplete="name"
+        />
+        <TextField
+          variant="outlined"
+          margin="normal"
+          required
+          fullWidth
+          id="reply_to"
+          label="Seu E-mail"
+          name="reply_to"
+          autoComplete="email"
+        />
+        <TextField
+          variant="outlined"
+          margin="normal"
+          required
+          fullWidth
+          name="message"
+          label="Sua Mensagem"
+          type="text"
+          id="message"
+          multiline
+          rows={4}
+        />
+        <Button
+          type="submit"
+          fullWidth
+          variant="contained"
+          color="primary"
+          className={classes.submit}
+        >
+          Enviar Mensagem
+        </Button>
+      </form>
+    </Container>
   );
 };

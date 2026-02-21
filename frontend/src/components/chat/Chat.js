@@ -1,18 +1,47 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, User, Bot } from 'lucide-react';
+import { Send, MessageCircle, X, User, Bot } from 'lucide-react';
 import './Chat.css';
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const scrollRef = useRef(null);
+  const chatRef = useRef(null);
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (chatRef.current && !chatRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    const handleTouchOutside = (event) => {
+      if (chatRef.current && !chatRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleTouchOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleTouchOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleTouchOutside);
+    };
+  }, [isOpen]);
 
   const sendMessage = async (e) => {
     e.preventDefault();
@@ -24,7 +53,7 @@ const Chat = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('/api/chat', {
+      const response = await fetch('http://localhost:5000/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pergunta: input }),
@@ -42,39 +71,65 @@ const Chat = () => {
     }
   };
 
+  if (!isOpen) {
+    return (
+      <button 
+        className="chat-toggle" 
+        onClick={() => setIsOpen(true)}
+        title="Abrir chat"
+      >
+        <MessageCircle size={24} />
+      </button>
+    );
+  }
+
   return (
-    <div className="chat-wrapper">
+    <div className="chat-wrapper" ref={chatRef}>
       <div className="chat-container">
         <div className="chat-header">
-          Assistente de Suporte Técnico
+          Assistente Virtual - Lucas Rodrigues
+          <button 
+            className="chat-toggle hidden" 
+            onClick={() => setIsOpen(false)}
+            title="Fechar chat"
+          >
+            <X size={20} />
+          </button>
         </div>
-
-        <div ref={scrollRef} className="chat-messages-area">
-          {messages.map((msg, index) => (
-            <div key={index} className={`msg-row ${msg.role}`}>
+        <div className="chat-messages-area" ref={scrollRef}>
+          {messages.length === 0 && (
+            <div style={{ textAlign: 'center', color: '#666', padding: '20px' }}>
+              Olá! Sou o assistente virtual do Lucas. Como posso ajudar?
+            </div>
+          )}
+          {messages.map((message, index) => (
+            <div key={index} className={`msg-row ${message.role}`}>
               <div className="bubble">
-                {msg.role === 'bot' ? <Bot size={8} /> : <User size={18} />}
-                <span>{msg.content}</span>
+                {message.role === 'user' && <User size={16} />}
+                {message.role === 'bot' && <Bot size={16} />}
+                {message.content}
               </div>
             </div>
           ))}
           {isLoading && (
             <div className="msg-row bot">
-              <div className="bubble">Digitando...</div>
+              <div className="bubble">
+                <Bot size={16} />
+                Digitando...
+              </div>
             </div>
           )}
         </div>
-
-        <form onSubmit={sendMessage} className="chat-form">
+        <form className="chat-form" onSubmit={sendMessage}>
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Digite sua dúvida..."
+            placeholder="Digite sua pergunta..."
             disabled={isLoading}
           />
-          <button type="submit" disabled={isLoading}>
-            <Send size={18} />
+          <button type="submit" disabled={isLoading || !input.trim()}>
+            <Send size={20} />
           </button>
         </form>
       </div>

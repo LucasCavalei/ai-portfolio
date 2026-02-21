@@ -1,9 +1,8 @@
 from dotenv import load_dotenv
-from langchain_community.document_loaders import PyPDFDirectoryLoader
+from langchain_community.document_loaders import PyPDFDirectoryLoader, DirectoryLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter 
-#from langchain_chroma import Chroma
+from langchain_community.document_loaders import TextLoader 
 from langchain_pinecone import PineconeVectorStore
-#from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_cohere import CohereEmbeddings
 from pinecone import Pinecone
 import os
@@ -18,9 +17,25 @@ PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
 PASTA_BASE = "base"
 
 def load_documents(): 
-    loader = PyPDFDirectoryLoader(PASTA_BASE, glob="*.pdf")
-    documentos = loader.load()
-    return documentos
+    # Carrega arquivos PDF
+    pdf_loader = PyPDFDirectoryLoader(PASTA_BASE, glob="**/*.pdf")
+    pdf_documents = pdf_loader.load()
+    
+    # Carrega arquivos Markdown (.md)
+    md_loader = DirectoryLoader(
+        PASTA_BASE, 
+        glob="**/*.md", 
+        loader_cls=TextLoader,
+        loader_kwargs={'encoding': 'utf-8'}
+    )
+    md_documents = md_loader.load()
+    
+    # Combina todos os documentos
+    todos_documentos = pdf_documents + md_documents
+    print(f"Carregados {len(pdf_documents)} PDFs e {len(md_documents)} arquivos Markdown")
+    print(f"Total de documentos: {len(todos_documentos)}")
+    
+    return todos_documentos
 
 def dividir_chunks(documents):
     separador_documentos = RecursiveCharacterTextSplitter(
@@ -39,11 +54,15 @@ def vetorizar_chunks(chunks):
 #         persist_directory="./db" 
 #     )
 #     print("DB criado e salvo com sucesso na pasta 'db'")
-
-    funcao_embedding = CohereEmbeddings( model="embed-multilingual-v3.0", cohere_api_key=os.getenv("COHERE_API_KEY"))
+    
+    #Agora usamos Cohere para vetorizar / criar os embeddings
+    funcao_embedding = CohereEmbeddings(
+        model="embed-multilingual-v3.0",
+        cohere_api_key=os.getenv("COHERE_API_KEY")
+    )
     print("Iniciando upload para o Pinecone...")
     pc = Pinecone(api_key=PINECONE_API_KEY)
-    
+    # 2 - Esta linha que faz o  restante com os chunks
     PineconeVectorStore.from_documents(
         documents=chunks, 
         embedding=funcao_embedding,

@@ -29,17 +29,19 @@ export const Content = () => {
   const classes = useStyles();
 
   return (
-    <Container component="main" className={classes.main} maxWidth="md">
-      <div className={classes.heading}>
-        <Typography variant="h5" component="h2">
-            <TextDecrypt text={`${FirstName} ${LastName}`} />
-        </Typography>
-        <Typography variant="h1" component="h1" className={classes.jobs}>
-            <TextDecrypt text={`${Resume.basics.job1} + `} />
-            <TextDecrypt text={`${Resume.basics.job2}`} />
-        </Typography>
-      </div>
-   <Chat />
-    </Container>
+    <>
+      <Container component="main" className={classes.main} maxWidth="md">
+        <div className={classes.heading}>
+          <Typography variant="h5" component="h2">
+              <TextDecrypt text={`${FirstName} ${LastName}`} />
+          </Typography>
+          <Typography variant="h1" component="h1" className={classes.jobs}>
+              <TextDecrypt text={`${Resume.basics.job1} + `} />
+              <TextDecrypt text={`${Resume.basics.job2}`} />
+          </Typography>
+        </div>
+      </Container>
+      <Chat />
+    </>
   );
 };

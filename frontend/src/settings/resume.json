@@ -8,26 +8,26 @@
         "x_title": "Olá, eu sou",
         "job1": "Desenvolvedor",
         "job2": "Web",
-        "description": "Olá! Eu sou Lucas! Um entusiasta de desenvolvimento web. Sempre pronto para novos desafios! Estou aqui para ajudar a criar sites incríveis e funcionais.",
-        "summary": "baseado em Sua Manaus, Amazonas.",
-        "keywords": "personal,website,portfolio,template,kit,mark,tan,webdev,web,developer,angeles,philippines,react,github,linkedin,google,gitlab,telegram,material,design,ui,webapp,markdown",
+        "description": "Entusiasta de desenvolvimento web sempre pronto para novos desafios! Estou aqui para ajudar a criar ideias incríveis e funcionais.",
+        "summary": "baseado em  Manaus, Amazonas.",
+        "keywords": "personal,website,portfolio,template,kit,langchain,IA,chatbot,webdev,web,developer,angeles,brazil,react,github,linkedin,google,gitlab,telegram,material,design,ui,webapp,markdown",
         "url": "",
         "location": {
             "address": "Sua Rua, Número",
             "postalCode": "XXXXX-XXX",
-            "city": "Sua Cidade",
+            "city": "Manaus AM",
             "country": "Brasil",
             "countryCode": "BR",
             "region": "Seu Estado"
         },
         "profiles": [
-            {
-                "network": "Google",
-                "username": "lucassenai@gmail.com",
-                "url": "email prara :lucassenai1206@gmail.com",
-                "x_icon": "fab fa-google"
-            },
-            {
+      {
+    "network": "Google",
+    "username": "lucassenai@gmail.com",
+    "url": "https://mail.google.com/mail/?view=cm&fs=1&to=lucassenai1206@gmail.com",
+    "x_icon": "fab fa-google"
+},
+                        {
                 "network": "LinkedIn",
                 "username": "Lucas Rodrigues",
                 "url": "https://www.linkedin.com/in/lucas-cavaleiro-340677175/",

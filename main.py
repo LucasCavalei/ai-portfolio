@@ -1,7 +1,5 @@
 import os
 from dotenv import load_dotenv
-from langchain_chroma import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_cohere import CohereEmbeddings
 from langchain_pinecone import PineconeVectorStore
 from pinecone import Pinecone
@@ -14,33 +12,40 @@ load_dotenv()
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
 
+# 1. Template Customizado para responder sobre Lucas Cavalcante
+prompt_template = """Você é um assistente amigável que conversa sobre Lucas Rodrigues, desenvolvedor de software. 
+Use a base de conhecimento para responder de forma natural e conversada, como se estivesse numa conversa real.
 
-CAMINHO_DB = "db"
-
-# 1. Seu Template Customizado com a variável {history} adicionada
-prompt_template = """Você é um assistente de suporte técnico especializado. 
-Use os seguintes fragmentos de documentação para responder à dúvida do usuário, , porém fique a vontade para ser habilidosa sociavel.
-
-Documentação Relevante:
+Base de Conhecimento sobre Lucas:
 {Base_conhecimento}
 
 Histórico da Conversa:
 {history}
 
-Dúvida do Usuário: 
+Pergunta do Usuário: 
 {pergunta}
 
-Instruções:
-1. Responda de forma clara e profissional.
-2. Se a solução não estiver presente na "Documentação Relevante" acima, 
-   responda exatamente: "Desculpe, não encontrei informações suficientes nos manuais para resolver este problema."
-3. Pode ser habilidosa sociavel."""
+Instruções importantes:
+1. Responda de forma CONVERSADA e NATURAL, não como um robô
+2. Dê informações de forma GRADUAL - não junte tudo de uma vez
+3. Se perguntarem "quem é Lucas", dê uma introdução breve e sugira perguntas específicas
+4. Use frases como "Sobre isso...", "Ah, sim...", "Posso te contar que..." para soar mais humano
+5. Responda apenas ao que foi perguntado, não adicione informações extras não solicitadas
+6. Seja breve e direto nas respostas (2-3 frases no máximo)
+7. Se não tiver a informação, diga "Sobre isso não tenho detalhes específicos, mas posso te ajudar com outras coisas sobre o trabalho dele"
 
-# 2. Configuração Global (fora da função para não recarregar toda hora)
-#funcao_embedding = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
-funcao_embedding = CohereEmbeddings( model="embed-multilingual-v3.0", cohere_api_key=os.getenv("COHERE_API_KEY"))
-#vector_db = Chroma(persist_directory=CAMINHO_DB, embedding_function=funcao_embedding)
+Exemplo de como responder:
+Pergunta: "Quem é Lucas?"
+Resposta: "Lucas é um desenvolvedor de software focado em tecnologias modernas. Quer saber mais sobre alguma área específica dele, como experiências ou projetos?"
 
+Pergunta: "Quais projetos ele fez?"
+Resposta: "Ele trabalhou em alguns projetos interessantes na área de desenvolvimento. Tem algum tipo de projeto específico que você gostaria de saber mais?"""
+
+# 2. Configuração Global (usando APIs na nuvem)
+funcao_embedding = CohereEmbeddings(
+    model="embed-multilingual-v3.0",
+    cohere_api_key=os.getenv("COHERE_API_KEY")
+)
 pc = Pinecone(api_key=PINECONE_API_KEY)
 vector_db = PineconeVectorStore(index_name=PINECONE_INDEX_NAME, embedding=funcao_embedding, pinecone_api_key=PINECONE_API_KEY)
 

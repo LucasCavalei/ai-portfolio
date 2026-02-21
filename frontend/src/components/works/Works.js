@@ -28,46 +28,44 @@ export const Works = () => {
   const classes = useStyles();
   const [projects, setProjects] = useState([
     { 
-      id: 2,
+      id: 1,
       title: 'Pesquisa Política', 
-      description: `A political research project built using ReactJS and Node.js 
-      to analyze political data and trends.`,
+      description: `Plataforma para automação de sondagens eleitorais o usuário dispara chamadas onde um agente de IA conversacional entrevista os eleitores,
+       seguindo um roteiro para captar intenções de voto.`,
       alter: 'Pesquisa Política',
       image: `${Eleitoral1}`,
     },
     { 
-      id: 3,
-      title: 'Agro desefa', 
-      description: `ALorem Ipsum is not simply random text.
-       It has roots in a piece of classical Latin literature from 45 BC,
-        making it over 2000 years old`,
+      id: 2,
+      title: 'Agro Defesa', 
+      description: `Aplicação web desenvolvida para o evento Agro Defesa da Agendacia de Defesa Agropecuária e Florestal (ADAF) realizado no Centro de Convenções Vasco Vasques. O sistema foi criado para apresentar de forma interativa os tópicos abordados nas palestras, detalhando as
+       responsabilidades e áreas de atuação da Agência de Defesa Agropecuária e Florestal (ADAF).`,
       alter: 'VeriTru Project',
       image: `${Agro}`,
     },
+    // { 
+    //   id: 3,
+    //   title: 'Ligação', 
+    //   description: `Lorem Ipsum is not simply random text.
+    //    It has roots in a piece of classical Latin literature from 45 BC,
+    //     making it over 2000 years old.`,
+    //   alter: 'LoFo Project',
+    //   image: `${Eleitoral2png}`,
+    // },
     { 
       id: 3,
-      title: 'Ligação', 
-      description: `Lorem Ipsum is not simply random text.
-       It has roots in a piece of classical Latin literature from 45 BC,
-        making it over 2000 years old.`,
-      alter: 'LoFo Project',
-      image: `${Eleitoral2png}`,
-    },
-    { 
-      id: 1,
-      title: 'React Portfolio', 
-      description: `Lorem Ipsum is not simply random text.
-       It has roots in a piece of classical Latin literature from 45 BC,
-        making it over 2000 years oldt.`,
+      title: 'Design de Interface moderno', 
+     description: `Interface adaptativa de alta performance desenvolvida com Mobile-First. 
+  Utiliza React js , Angular JS, Tailwind CSS e Grid Layout para garantir uma experiência fluida em qualquer 
+  dispositivo, priorizando velocidade e acessibilidade.`,
       alter: 'React Portfolio',
       image: `${Portfolio}`,
     },
     { 
-      id: 5,
-      title: 'Teamwork', 
-      description: `Lorem Ipsum is not simply random text.
-       It has roots in a piece of classical Latin literature from 45 BC,
-        making it over 2000 years old`,
+      id: 4,
+      title: 'Checklist', 
+      description: `Minimalista focado em produtividade pessoal. O app permite que usuários organizem 
+      sua rotina através da criação, edição e priorização de afazeres diários`,
       alter: 'Startup Project',
       image: `${Workteam}`,
     },

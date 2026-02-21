@@ -1,19 +1,105 @@
 /* Container principal do chat */
-/* .chat-wrapper {
+.chat-wrapper {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
+  bottom: 70px;
+  right: 0px;
+  width: 100%;
+  max-width: 420px; 
+  height: 600px;
+  max-height: 80vh;
   font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
-  background-color: transparent;
   color: var(--foreground, #111111);
   z-index: 1000;
-} */
+  transition: all 0.3s ease;
+}
+
+.chat-wrapper.minimized {
+  height: auto;
+  max-height: auto;
+}
+
+/* Botão flutuante para abrir/fechar */
+.chat-toggle {
+  position: fixed;
+  bottom: 110px;
+  right: 40px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #42bcbc 0%, #36a2a2 100%);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(66, 188, 188, 0.4);
+  z-index: 1001;
+  transition: all 0.3s ease;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 4px 12px rgba(66, 188, 188, 0.4);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(66, 188, 188, 0.6), 0 0 0 10px rgba(66, 188, 188, 0.1);
+  }
+  100% {
+    box-shadow: 0 4px 12px rgba(66, 188, 188, 0.4);
+  }
+}
+
+.chat-toggle:hover {
+  background: linear-gradient(135deg, #36a2a2 0%, #2d8a8a 100%);
+  transform: scale(1.1);
+  animation: none;
+}
+
+.chat-toggle:hover::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  right: -5px;
+  bottom: -5px;
+  border-radius: 50%;
+  border: 2px solid rgba(66, 188, 188, 0.3);
+  animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+}
+
+.chat-toggle.hidden {
+  display: none;
+}
+
+/* Animação do ícone */
+.chat-toggle svg {
+  animation: iconBounce 2s ease-in-out infinite;
+}
+
+@keyframes iconBounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-3px);
+  }
+  60% {
+    transform: translateY(-1px);
+  }
+}
 
 /* O retângulo vertical */
 .chat-container {
@@ -165,11 +251,40 @@
 
 /* Responsividade */
 @media (max-width: 600px) {
+  .chat-wrapper {
+    bottom: 0px;
+    right: 10px;
+    left: 110px;
+    max-width: none;
+    width: calc(100% - 20px);
+    height: 70vh;
+    max-height: 70vh;
+  }
+  
   .chat-container {
-    max-width: 100%;
+    max-width: 80%;
     height: 100%;
     max-height: 100%;
-    border-radius: 0;
+    border-radius: 12px;
+    background: var(--background, #ffffff);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    overflow: hidden;
+    border: 1px solid rgba(66, 188, 188, 0.2);
+    transition: all 0.3s ease;
+  }
+  
+  .chat-toggle {
+    bottom: 100px;
+    right: 45px;
+    width: 50px;
+    height: 50px;
+  }
+  
+  .chat-toggle svg {
+    width: 20px;
+    height: 20px;
   }
   
   .bubble {

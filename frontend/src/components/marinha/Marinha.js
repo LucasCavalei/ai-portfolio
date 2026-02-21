@@ -5,9 +5,10 @@ import { makeStyles } from "@material-ui/core/styles";
 import { TextDecrypt } from "../content/TextDecrypt";
 import { FirstName, LastName } from "../../utils/getName";
 
-import './About.css';
+import './Marinha.css';
 
-import profile from '../../assets/profile.png';
+import profile from '../../assets/marinhaPerfil.svg';
+import profile2 from '../../assets/marinha2.svg';
 
 const useStyles = makeStyles((theme) => ({
   main: {
@@ -17,10 +18,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const About = () => {
+export const Marinha = () => {
   const classes = useStyles();
   const greetings = "Olá!";
-  const aboutme = `Me chamo ${FirstName} ${LastName}, Full Stack Developer multidisciplinar.
+  const aboutme = ` Me chamo ${FirstName} ${LastName}, Full Stack Developer multidisciplinar.
                  Embora minha base seja o desenvolvimento web, estou expandindo minha atuação para o campo de Automação e Bots (IA).
                 Sempre topando qualquer desafio.
                   Estou aqui para lhe ajudar a criar sistemas tops`;

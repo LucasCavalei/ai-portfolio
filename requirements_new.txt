@@ -1,0 +1,24 @@
+# Requirements para o Chat AI RAG - Versão Modular
+# Flask e Web
+flask==3.1.4
+flask-cors==5.0.0
+flask-json-provider==0.3
+
+# LangChain - Core
+langchain==0.3.21
+langchain-core==0.3.45
+langchain-community==0.3.19
+langchain-groq==0.2.4
+langchain-cohere==0.3.1
+langchain-pinecone==0.2.2
+
+# Vector Database e Embeddings
+pinecone==6.0.2
+cohere==5.14.0
+
+# Environment e Utilitários
+python-dotenv==1.0.1
+requests==2.32.3
+
+# Logging e Monitoramento (opcional)
+structlog==24.4.0

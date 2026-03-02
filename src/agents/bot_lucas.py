@@ -1,18 +1,14 @@
-import os
-from dotenv import load_dotenv
-from langchain_cohere import CohereEmbeddings
-from langchain_pinecone import PineconeVectorStore
-from pinecone import Pinecone
+# ARQUIVO: src/agents/bot_lucas.py
+
 from langchain_core.prompts import PromptTemplate
 from langchain_groq import ChatGroq
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_community.chat_message_histories import ChatMessageHistory
 
-load_dotenv()
-PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
-PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
+# Importa a função de busca do banco de dados vetorial
+from database.vector_db import buscar_contexto
 
-# 1. Template Customizado para responder sobre Lucas Cavalcante
+# 1. Template Customizado - Melhorado para respostas mais naturais
 prompt_template = """Você é um assistente amigável que conversa sobre Lucas Rodrigues, desenvolvedor de software. 
 Use a base de conhecimento para responder de forma natural e conversada, como se estivesse numa conversa real.
 
@@ -33,28 +29,31 @@ Instruções importantes:
 5. Responda apenas ao que foi perguntado, não adicione informações extras não solicitadas
 6. Seja breve e direto nas respostas (2-3 frases no máximo)
 7. Se não tiver a informação, diga "Sobre isso não tenho detalhes específicos, mas posso te ajudar com outras coisas sobre o trabalho dele"
+8. Use acentuação corretamente (á, é, í, ó, ú, ç, ã, õ)
 
-Exemplo de como responder:
+Exemplos de como responder:
 Pergunta: "Quem é Lucas?"
 Resposta: "Lucas é um desenvolvedor de software focado em tecnologias modernas. Quer saber mais sobre alguma área específica dele, como experiências ou projetos?"
 
 Pergunta: "Quais projetos ele fez?"
-Resposta: "Ele trabalhou em alguns projetos interessantes na área de desenvolvimento. Tem algum tipo de projeto específico que você gostaria de saber mais?"""
+Resposta: "Ele trabalhou em alguns projetos interessantes na área de desenvolvimento. Tem algum tipo de projeto específico que você gostaria de saber mais?"
 
-# 2. Configuração Global (usando APIs na nuvem)
-funcao_embedding = CohereEmbeddings(
-    model="embed-multilingual-v3.0",
-    cohere_api_key=os.getenv("COHERE_API_KEY")
+Pergunta: "Onde ele estudou?"
+Resposta: "Lucas tem formação na área de tecnologia. Quer saber mais sobre sua formação acadêmica ou cursos específicos?"
+"""
+
+# Configuração do modelo com parâmetros otimizados
+model = ChatGroq(
+    model="llama-3.3-70b-versatile",
+    temperature=0.7,  # Um pouco mais criativo mas ainda consistente
+    max_tokens=300,  # Limita o tamanho das respostas
 )
-pc = Pinecone(api_key=PINECONE_API_KEY)
-vector_db = PineconeVectorStore(index_name=PINECONE_INDEX_NAME, embedding=funcao_embedding, pinecone_api_key=PINECONE_API_KEY)
-
-model = ChatGroq(model="llama-3.3-70b-versatile")
 
 # 3. Gerenciamento de Memória
 store = {}
 
 def get_session_history(session_id: str):
+    """Retorna o histórico de conversas de uma sessão"""
     if session_id not in store:
         store[session_id] = ChatMessageHistory()
     return store[session_id]
@@ -71,26 +70,31 @@ with_message_history = RunnableWithMessageHistory(
 )
 
 def executar_chat(pergunta):
-    # ID da sessão (Poderia ser o ID do usuário vindo do WhatsApp ou Chat)
-    config = {"configurable": {"session_id": "usuario_teste_123"}}
-    
-    # BUSCA NO RAG (Igual ao seu código original)
-    resultados = vector_db.similarity_search_with_relevance_scores(pergunta, k=4)
-    
-    if len(resultados) == 0 or resultados[0][1] < 0.3: # Ajustei o threshold para 0.3
-        base_conhecimento = "Nenhuma informação relevante encontrada no banco de dados."
-    else:
-        textos_resultados = [res[0].page_content for res in resultados]
-        base_conhecimento = "\n\n-----------------\n\n".join(textos_resultados)
+    """Função principal que executa o chat sobre Lucas Rodrigues"""
+    try:
+        # ID da sessão (Poderia ser dinâmico no futuro)
+        config = {"configurable": {"session_id": "usuario_teste_123"}}
 
-    # EXECUÇÃO COM HISTÓRICO
-    # O 'with_message_history' injeta automaticamente o histórico na variável {history}
-    resposta = with_message_history.invoke(
-        {
-            "pergunta": pergunta, 
-            "Base_conhecimento": base_conhecimento
-        },
-        config=config
-    )
+        # Busca o contexto no banco de dados isolado
+        base_conhecimento = buscar_contexto(pergunta)
 
-    return resposta.content
+        # Execução com Histórico
+        resposta = with_message_history.invoke(
+            {
+                "pergunta": pergunta, 
+                "Base_conhecimento": base_conhecimento
+            },
+            config=config
+        )
+
+        # Limpa e retorna a resposta
+        resposta_limpa = resposta.content.strip()
+        
+        # Garante que a resposta não seja muito longa
+        if len(resposta_limpa) > 500:
+            resposta_limpa = resposta_limpa[:500] + "..."
+            
+        return resposta_limpa
+        
+    except Exception as e:
+        return f"Desculpe, tive um problema ao processar sua pergunta. Pode tentar novamente? Erro: {str(e)}"

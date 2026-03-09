@@ -47,6 +47,7 @@ model = ChatGroq(
     model="llama-3.3-70b-versatile",
     temperature=0.7,  # Um pouco mais criativo mas ainda consistente
     max_tokens=300,  # Limita o tamanho das respostas
+    verbose=False  # Evita o erro do verbose
 )
 
 # 3. Gerenciamento de Memória

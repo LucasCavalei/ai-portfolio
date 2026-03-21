@@ -2,7 +2,7 @@
 
 from flask import Blueprint, Flask, request, jsonify
 from flask_cors import CORS
-from agents.bot_lucas import executar_chat
+from agents.lucas.bot_lucas import executar_chat
 from flask.json.provider import DefaultJSONProvider
 import logging
 import time

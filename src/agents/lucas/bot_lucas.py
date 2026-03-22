@@ -3,7 +3,8 @@ import uuid
 from typing import Annotated, TypedDict, Literal
 from flask import Blueprint, request, jsonify
 from pydantic import BaseModel, Field
-
+from datetime import datetime
+from sqlalchemy import text
 from langchain_groq import ChatGroq
 from langchain_core.tools import tool
 from langgraph.graph import StateGraph, START, END
@@ -38,8 +39,40 @@ def consultar_base_de_conhecimento(query: str) -> str:
         print(f"Erro ao consultar o Pinecone: {e}")
         return "Desculpe, no momento não consegui acessar os detalhes do meu currículo."
 
-tools = [consultar_base_de_conhecimento]
 
+@tool
+def cadastrar_cliente(telefone: str, nome: str = None, cpf: str = None) -> str:
+    """
+    Cadastra um novo cliente no banco de dados para o fluxo do chatbot.
+    Recebe o telefone (obrigatório), nome e CPF (opcionais).
+    """
+    # Gerar um UUID único para o novo cliente
+    novo_id = str(uuid.uuid4())
+    
+    query = text("""
+        INSERT INTO clientes (id, telefone_whatsapp, nome, cpf, fase_funil, ultima_interacao)
+        VALUES (:id, :tel, :nome, :cpf, 'Novo Lead', :agora)
+    """)
+    
+    try:
+        with engine.connect() as conn:
+            conn.execute(query, {
+                "id": novo_id,
+                "tel": telefone,
+                "nome": nome,
+                "cpf": cpf,
+                "agora": datetime.now()
+            })
+            conn.commit()
+            return f"Cliente {nome or telefone} cadastrado com sucesso! ID: {novo_id}"
+            
+    except Exception as e:
+        if "Duplicate entry" in str(e):
+            return "Erro: Este número de WhatsApp já está cadastrado."
+        return f"Erro ao cadastrar cliente: {e}"
+
+# Atualizando sua lista de tools
+tools = [cadastrar_cliente,consultar_base_de_conhecimento]
 # ==========================================
 # 2. SETUP DO LLM E ESTRUTURAS DE DADOS
 # ==========================================
@@ -59,15 +92,26 @@ class State(TypedDict):
 # ==========================================
 # 3. O ROTEADOR INTELIGENTE (Intent Routing)
 # ==========================================
+class DadosCliente(BaseModel):
+    nome: Optional[str] = Field(None, description="Nome completo do usuário")
+    telefone: Optional[str] = Field(None, description="Número do WhatsApp")
+    cpf: Optional[str] = Field(None, description="CPF do usuário")
+
 class Rota(BaseModel):
-    # Alteramos o Literal para refletir os novos nós
-    destino: Literal["chat_node", "especialista_node"] = Field(
-        description="Escolha 'especialista_node' APENAS se o usuário pedir informações sobre Lucas, quem ele é, seus projetos, formação ou experiência. Escolha 'chat_node' para saudações (oi, tudo bem) ou conversas gerais."
+    destino: Literal["chat_node", "especialista_node", "cadastro_node"] = Field(
+        description=(
+            "Decida o próximo nó com base na intenção do usuário: "
+            "1. 'cadastro_node': Se o usuário fornecer dados pessoais (nome, CPF, telefone) ou demonstrar interesse em se cadastrar/deixar contato. "
+            "2. 'especialista_node': Se o usuário pedir informações específicas sobre Lucas (quem ele é, projetos, formação ou experiência). "
+            "3. 'chat_node': Para saudações, conversas gerais ou qualquer assunto que não se encaixe nos anteriores."
+        )
     )
 
 llm_roteador = llm.with_structured_output(Rota)
+llm_extrator_dados = llm.with_structured_output(DadosCliente)
 
-def roteador_semantico(state: State) -> Literal["chat_node", "especialista_node"]:
+
+def roteador_semantico(state: State) -> Literal["chat_node", "especialista_node", "cadastro_node"]:
     """Analisa a última mensagem e decide para qual especialista enviar."""
     ultima_mensagem = state["messages"][-1].content
     try:
@@ -126,25 +170,65 @@ def agente_especialista(state: State):
     resposta_ia = llm_with_tools.invoke(mensagens_para_ia)
     return {"messages": [resposta_ia]}
 
+
+def agente_cadastro(state: State):
+    # Instrução para extração de dados
+    prompt_extracao = (
+        "Você é um assistente de cadastro. Analise o histórico e extraia: nome, telefone e cpf. "
+        "Se o usuário enviou o telefone, use a ferramenta 'cadastrar_cliente'. "
+        "Se faltar o telefone, peça educadamente. Seja breve."
+    )    
+    mensagens = [{"role": "system", "content": prompt_extracao}] + state["messages"]
+    # O LLM decide se usa a tool de cadastro ou se apenas responde pedindo dados
+    resposta = llm.bind_tools([cadastrar_cliente]).invoke(mensagens)
+    return {"messages": [resposta]}
+
+
+# ==========================================
+# 5. CONSTRUÇÃO DO GRAFO (Arquitetura)
+# ==========================================
 # ==========================================
 # 5. CONSTRUÇÃO DO GRAFO (Arquitetura)
 # ==========================================
 graph_builder = StateGraph(State)
 
-# Adicionando os nós (Mudamos 'sql_node' para 'especialista_node')
+# 1. Adicionando todos os Nós Principais
 graph_builder.add_node("chat_node", agente_bate_papo)
 graph_builder.add_node("especialista_node", agente_especialista)
-graph_builder.add_node("tools", ToolNode(tools=tools))
+graph_builder.add_node("cadastro_node", agente_cadastro)
 
-# Fluxo de Roteamento
+# 2. Criando Nós de Ferramentas SEPARADOS
+from langgraph.prebuilt import ToolNode # (caso não tenha importado)
+
+tools_especialista = ToolNode(tools=[consultar_base_de_conhecimento])
+tools_cadastro = ToolNode(tools=[cadastrar_cliente])
+
+graph_builder.add_node("tools_especialista", tools_especialista)
+graph_builder.add_node("tools_cadastro", tools_cadastro)
+
+# 3. Fluxo de Entrada (Roteamento Inicial)
 graph_builder.add_conditional_edges(START, roteador_semantico)
 
-# Fluxo do Chat Comum
+# 4. Fluxos de Saída Direta
 graph_builder.add_edge("chat_node", END)
 
-# Fluxo do Agente Especialista (O loop com as ferramentas)
-graph_builder.add_conditional_edges("especialista_node", tools_condition)
-graph_builder.add_edge("tools", "especialista_node")
+# 5. Fluxo do Agente Especialista
+# Usamos um dicionário para mapear a saída da tools_condition (que retorna "tools" por padrão) para o nosso nó personalizado
+graph_builder.add_conditional_edges(
+    "especialista_node", 
+    tools_condition, 
+    {"tools": "tools_especialista", END: END}
+)
+graph_builder.add_edge("tools_especialista", "especialista_node")
+
+# 6. Fluxo do Agente de Cadastro
+graph_builder.add_conditional_edges(
+    "cadastro_node", 
+    tools_condition, 
+    {"tools": "tools_cadastro", END: END}
+)
+graph_builder.add_edge("tools_cadastro", "cadastro_node")
+graph_builder.add_edge("cadastro_node", END) 
 
 # Compilando com Memória
 memory = MemorySaver()

@@ -15,13 +15,7 @@ logger = logging.getLogger(__name__)
 # Criamos o Blueprint (é ele que exporta a rota para o main.py)
 chat_blueprint = Blueprint('chat', __name__)
 
-# ==========================================
-# 6. ROTA DA API FLASK
-# ==========================================
-# ==========================================
-# 6. ROTA DA API FLASK
-# ==========================================
-# ==========================================
+
 # 6. ROTA DA API FLASK
 # ==========================================
 @chat_blueprint.route('/chat', methods=["POST"])

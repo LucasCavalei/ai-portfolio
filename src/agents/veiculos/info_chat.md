@@ -1,16 +1,15 @@
 -- TABELA 1: LEADS E CLIENTES
 -- Em chatbots, o cliente nasce apenas com o telefone. Os outros dados são enriquecidos durante a conversa.
 CREATE TABLE clientes (
-    id UUID PRIMARY KEY,
+    id VARCHAR(36) PRIMARY KEY, -- Usamos VARCHAR(36) para o formato '8-4-4-4-12'
     telefone_whatsapp VARCHAR(20) UNIQUE NOT NULL,
     nome VARCHAR(100),
     cpf VARCHAR(14),
     opt_in_marketing BOOLEAN DEFAULT TRUE,
-    fase_funil VARCHAR(50) DEFAULT 'Novo Lead', -- Ex: Novo Lead, Em Atendimento, Qualificado, Frio
+    fase_funil VARCHAR(50) DEFAULT 'Novo Lead',
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ultima_interacao TIMESTAMP
+    ultima_interacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
-
 -- TABELA 2: ESTOQUE DE VEÍCULOS
 -- Focada no que interessa para a vitrine do bot e transações.
 CREATE TABLE veiculos (

@@ -15,53 +15,42 @@ logger = logging.getLogger(__name__)
 # Criamos o Blueprint (é ele que exporta a rota para o main.py)
 chat_blueprint = Blueprint('chat', __name__)
 
+# ==========================================
+# 6. ROTA DA API FLASK
+# ==========================================
+# ==========================================
+# 6. ROTA DA API FLASK
+# ==========================================
+# ==========================================
+# 6. ROTA DA API FLASK
+# ==========================================
 @chat_blueprint.route('/chat', methods=["POST"])
 def chat_endpoint():
-    start_time = time.time()
-    
     try:
-        # Validação dos dados de entrada
+        # Marca o início do tempo de processamento
+        start_time = time.time()
+        
         dados = request.get_json()
-        if not dados:
-            return jsonify({
-                "status": "erro", 
-                "mensagem": "Nenhum dado JSON recebido"
-            }), 400
         
-        pergunta = dados.get("pergunta", "").strip()
-        
-        if not pergunta:
-            return jsonify({
-                "status": "erro", 
-                "mensagem": "Pergunta vazia ou não fornecida"
-            }), 400
-        
-        if len(pergunta) > 1000:
-            return jsonify({
-                "status": "erro", 
-                "mensagem": "Pergunta muito longa. Máximo 1000 caracteres."
-            }), 400
+        if not dados or "pergunta" not in dados:
+            return jsonify({"erro": "Envie um JSON com o campo 'pergunta'."}), 400
             
-        # Log da pergunta (sem dados sensíveis)
-        logger.info(f"Recebida pergunta: {pergunta[:50]}...")
+        pergunta = dados["pergunta"]
         
-        # 1. Pega o session_id do frontend. Se não vier, cria um UUID único.
+        # 1. Pega o session_id do frontend. Se não vier (primeira mensagem), cria um UUID único na hora.
         session_id = dados.get("session_id", str(uuid.uuid4()))
         
-        # 2. Configura a memória do LangGraph para usar esse ID
+        # 2. Configura a memória do LangGraph para usar esse ID específico
         config = {"configurable": {"thread_id": session_id}}
         
         # 3. Executa o grafo com a memória correta
-        resultado = app_graph.invoke({"messages": [("user", pergunta)]}, config)
-        
-        # 4. Pega a resposta gerada
-        resposta_final = resultado["messages"][-1].content
-        
+        resposta_final = executar_chat(pergunta, session_id)
+            
         # Calcula tempo de processamento
         processing_time = round((time.time() - start_time) * 1000, 2)
         logger.info(f"Resposta gerada em {processing_time}ms para a sessão {session_id}")
-        
-        # 5. Retorna a resposta da IA e também o ID para o frontend
+            
+        # 4. Retorna o sucesso para o frontend
         return jsonify({
             "status": "sucesso",
             "resposta": resposta_final,
@@ -78,7 +67,7 @@ def chat_endpoint():
             "mensagem": "Erro interno no servidor. Tente novamente em alguns instantes.",
             "error_code": "INTERNAL_ERROR"
         }), 500
-
+        
 @chat_blueprint.route('/chat/health', methods=['GET'])
 def chat_health():
     """Health check específico do chat"""

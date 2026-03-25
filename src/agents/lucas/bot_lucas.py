@@ -1,10 +1,11 @@
 import os
 import uuid
-from typing import Annotated, TypedDict, Literal
+from dotenv import load_dotenv
+from typing import Annotated, TypedDict, Literal,Optional
 from flask import Blueprint, request, jsonify
 from pydantic import BaseModel, Field
 from datetime import datetime
-from sqlalchemy import text
+from sqlalchemy import create_engine, text
 from langchain_groq import ChatGroq
 from langchain_core.tools import tool
 from langgraph.graph import StateGraph, START, END
@@ -20,26 +21,20 @@ from database.vector_db import buscar_contexto
 # Mudei o nome do blueprint para fazer mais sentido, mas a estrutura do Flask é a mesma
 portfolio_blueprint = Blueprint('portfolio', __name__)
 
+
+
 # ==========================================
 # 1. SETUP DA BASE E FERRAMENTAS
 # ==========================================
 # Substituímos o banco SQL por uma base de texto para a IA consultar usando a mesma mecânica de Tool
 
-@tool
-def consultar_base_de_conhecimento(query: str) -> str:
-    """Busca informações na base de conhecimento sobre as experiências, formação e projetos de Lucas Rodrigues."""
-    
-    # A IA vai inventar a 'query' sozinha baseada na pergunta do usuário.
-    # Ex: O usuário digita "Onde o Lucas trabalhou?", a IA manda query="experiência profissional".
-    
-    try:
-        base_conhecimento = buscar_contexto(query)
-        return base_conhecimento
-    except Exception as e:
-        print(f"Erro ao consultar o Pinecone: {e}")
-        return "Desculpe, no momento não consegui acessar os detalhes do meu currículo."
+load_dotenv()
 
+# Pega exatamente a variável que você criou no .env
+DATABASE_URL = os.getenv("ZAP_DATABASE_URL")
 
+# Cria o motor de conexão com o seu MySQL (db_agendamento_zap)
+engine = create_engine(DATABASE_URL)
 @tool
 def cadastrar_cliente(telefone: str, nome: str = None, cpf: str = None) -> str:
     """
@@ -70,6 +65,20 @@ def cadastrar_cliente(telefone: str, nome: str = None, cpf: str = None) -> str:
         if "Duplicate entry" in str(e):
             return "Erro: Este número de WhatsApp já está cadastrado."
         return f"Erro ao cadastrar cliente: {e}"
+@tool
+def consultar_base_de_conhecimento(query: str) -> str:
+    """Busca informações na base de conhecimento sobre as experiências, formação e projetos de Lucas Rodrigues."""
+    
+    # A IA vai inventar a 'query' sozinha baseada na pergunta do usuário.
+    # Ex: O usuário digita "Onde o Lucas trabalhou?", a IA manda query="experiência profissional".
+    
+    try:
+        base_conhecimento = buscar_contexto(query)
+        return base_conhecimento
+    except Exception as e:
+        print(f"Erro ao consultar o Pinecone: {e}")
+        return "Desculpe, no momento não consegui acessar os detalhes do meu currículo."
+
 
 # Atualizando sua lista de tools
 tools = [cadastrar_cliente,consultar_base_de_conhecimento]
@@ -79,11 +88,10 @@ tools = [cadastrar_cliente,consultar_base_de_conhecimento]
 llm = ChatGroq(
     model="llama-3.3-70b-versatile",
     temperature=0.3, 
-    max_tokens=500,
+    max_tokens=300,
     verbose=False
 )
 
-# O LLM com as ferramentas acopladas (usado APENAS pelo especialista)
 llm_with_tools = llm.bind_tools(tools)
 
 class State(TypedDict):
@@ -108,9 +116,89 @@ class Rota(BaseModel):
     )
 
 llm_roteador = llm.with_structured_output(Rota)
-llm_extrator_dados = llm.with_structured_output(DadosCliente)
 
+def agente_cadastro(state: State):
+    # 1. Resgatamos o que o LangGraph já memorizou nas rodadas anteriores
+    nome_salvo = state.get("nome")
+    cpf_salvo = state.get("cpf")
+    telefone_salvo = state.get("telefone")
 
+    # Pegamos APENAS a última mensagem digitada pelo usuário
+    ultima_msg = state["messages"][-1].content
+
+    # 2. Configura o LLM extrator usando a sua classe
+    llm_extrator = llm.with_structured_output(DadosCliente)
+    
+    # O prompt agora é simples e direto para analisar apenas a última fala
+    dados_extraidos = llm_extrator.invoke(
+        f"Extraia nome, cpf ou telefone do seguinte texto (retorne null para o que não achar): '{ultima_msg}'"
+    )
+    
+    # 3. Atualizamos a nossa "memória" se a IA tiver achado algo novo agora
+    if dados_extraidos.nome: nome_salvo = dados_extraidos.nome
+    if dados_extraidos.cpf: cpf_salvo = dados_extraidos.cpf
+    if dados_extraidos.telefone: telefone_salvo = dados_extraidos.telefone
+
+    # ==========================================
+    # 4. Lógica de Feedback e Roteamento (SUA LÓGICA MANTIDA)
+    # ==========================================
+    
+    # Cenário A: Falta o Nome
+    if not nome_salvo:
+        # Verifica se ele já mandou o CPF logo de cara
+        if cpf_salvo:
+            msg = "Anotei o seu CPF. Qual o seu nome completo?"
+        # Verifica se ele mandou o telefone primeiro
+        elif telefone_salvo:
+            msg = "Anotei o seu telefone. Para continuarmos, qual o seu nome completo?"
+        # Não mandou nada ainda
+        else:
+            msg = "Olá! Para começarmos o seu cadastro, qual é o seu nome completo?"
+            
+        # IMPORTANTE: Além da mensagem, retornamos os dados para o LangGraph guardar!
+        return {
+            "messages": [("assistant", msg)], 
+            "nome": nome_salvo, "cpf": cpf_salvo, "telefone": telefone_salvo
+        }
+
+    # Cenário B: Temos o Nome, mas falta o CPF
+    if not cpf_salvo:
+        msg = f"Prazer, {nome_salvo}! Agora só preciso do seu CPF."
+        return {
+            "messages": [("assistant", msg)], 
+            "nome": nome_salvo, "cpf": cpf_salvo, "telefone": telefone_salvo
+        }
+
+    # Cenário C: Temos Nome e CPF, mas falta o Telefone
+    if not telefone_salvo:
+        msg = f"Certo, {nome_salvo}! Já anotei seu CPF. Por fim, qual o seu telefone com DDD?"
+        return {
+            "messages": [("assistant", msg)], 
+            "nome": nome_salvo, "cpf": cpf_salvo, "telefone": telefone_salvo
+        }
+
+    # ==========================================
+    # 5. Todos os dados preenchidos! Chama a Tool
+    # ==========================================
+    try:
+        # Executa a tool do Langchain com as variáveis consolidadas
+        resultado_tool = cadastrar_cliente.invoke({
+            "nome": nome_salvo, 
+            "cpf": cpf_salvo, 
+            "telefone": telefone_salvo
+        })
+        
+        mensagem_final = f"Pronto, {nome_salvo}! Seu cadastro foi finalizado com sucesso."
+        return {
+            "messages": [("assistant", mensagem_final)], 
+            "nome": nome_salvo, "cpf": cpf_salvo, "telefone": telefone_salvo
+        }
+        
+    except Exception as e:
+        return {
+            "messages": [("assistant", f"Ops, ocorreu um erro ao salvar: {e}")],
+            "nome": nome_salvo, "cpf": cpf_salvo, "telefone": telefone_salvo
+        }
 def roteador_semantico(state: State) -> Literal["chat_node", "especialista_node", "cadastro_node"]:
     """Analisa a última mensagem e decide para qual especialista enviar."""
     ultima_mensagem = state["messages"][-1].content
@@ -171,17 +259,6 @@ def agente_especialista(state: State):
     return {"messages": [resposta_ia]}
 
 
-def agente_cadastro(state: State):
-    # Instrução para extração de dados
-    prompt_extracao = (
-        "Você é um assistente de cadastro. Analise o histórico e extraia: nome, telefone e cpf. "
-        "Se o usuário enviou o telefone, use a ferramenta 'cadastrar_cliente'. "
-        "Se faltar o telefone, peça educadamente. Seja breve."
-    )    
-    mensagens = [{"role": "system", "content": prompt_extracao}] + state["messages"]
-    # O LLM decide se usa a tool de cadastro ou se apenas responde pedindo dados
-    resposta = llm.bind_tools([cadastrar_cliente]).invoke(mensagens)
-    return {"messages": [resposta]}
 
 
 # ==========================================

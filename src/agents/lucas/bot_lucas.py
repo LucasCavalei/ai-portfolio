@@ -30,17 +30,20 @@ portfolio_blueprint = Blueprint('portfolio', __name__)
 
 load_dotenv()
 
-# Pega exatamente a variável que você criou no .env
+# Pega exatamente a variável que você criou no .env (opcional: sem isso o cadastro fica desativado)
 DATABASE_URL = os.getenv("ZAP_DATABASE_URL")
+engine = create_engine(DATABASE_URL) if DATABASE_URL else None
 
-# Cria o motor de conexão com o seu MySQL (db_agendamento_zap)
-engine = create_engine(DATABASE_URL)
+
 @tool
 def cadastrar_cliente(telefone: str, nome: str = None, cpf: str = None) -> str:
     """
     Cadastra um novo cliente no banco de dados para o fluxo do chatbot.
     Recebe o telefone (obrigatório), nome e CPF (opcionais).
     """
+    if engine is None:
+        return "Cadastro indisponível no momento (banco de dados não configurado)."
+
     # Gerar um UUID único para o novo cliente
     novo_id = str(uuid.uuid4())
     

@@ -1,0 +1,6 @@
+# Evita requirements.txt em UTF-16 (quebra pip no Linux/Docker).
+root = true
+
+[requirements.txt]
+charset = utf-8
+end_of_line = lf

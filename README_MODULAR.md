@@ -20,14 +20,29 @@ chatAiRag/
 ├── frontend/                     # React app (chat interface)
 ├── base/                         # Documentos para RAG
 ├── .env                          # Variáveis de ambiente
-└── requirements_new.txt          # Dependências Python
+└── requirements.txt          # Dependências Python
 ```
+
+## 🐳 Docker (API + frontend)
+
+Guia detalhado e **erros comuns**: pasta **`docker/README.md`**.
+
+**Forma mais simples (Windows):** na raiz do projeto, no PowerShell:
+
+`.\scripts\docker-subir.ps1`
+
+O script verifica se o Docker está ligado, cria `.env` a partir de `.env.example` se precisar, e sobe os containers.
+
+**Manual:** com Docker Desktop em execução, `.env` preenchido, rode `docker compose up --build`.
+
+- Site: **http://localhost:8080** (Nginx + React; `/api` vai para o Flask).
+- API direta: **http://localhost:5000** (testes com `curl`).
 
 ## 🚀 Como Executar
 
 ### 1. Instalar Dependências
 ```bash
-pip install -r requirements_new.txt
+pip install -r requirements.txt
 ```
 
 ### 2. Configurar Variáveis de Ambiente

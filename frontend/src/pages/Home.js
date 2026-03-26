@@ -11,9 +11,6 @@ import { SpeedDials } from '../components/speedDial/SpeedDial';
 import { SideNavbar } from '../components/nav/SideNavbar';
 import { Works } from '../components/works/Works';
 import { About } from '../components/about/About';
-import { Marinha } from '../components/marinha/Marinha';
-
-import { Contact } from '../components/contact/Contact';
 
 const useStyles = makeStyles(() => ({
   root: {

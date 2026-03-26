@@ -42,8 +42,10 @@ app.config['JSON_AS_ASCII'] = False
 app.config['JSON_SORT_KEYS'] = False
 app.json = CustomJSONProvider(app)
 
-# Libera o CORS para o seu Frontend conseguir conversar com a API
-CORS(app, origins=['http://localhost:3000', 'http://127.0.0.1:3000'])
+# CORS: dev (React :3000) ou origens extras via CORS_ORIGINS (vírgula)
+_default_origins = "http://localhost:3000,http://127.0.0.1:3000,http://localhost,http://127.0.0.1"
+_cors = [o.strip() for o in os.getenv("CORS_ORIGINS", _default_origins).split(",") if o.strip()]
+CORS(app, origins=_cors)
 
 # 5. Conecta os "mini apps" (Blueprints) no app principal. 
 # app.register_blueprint(sql_blueprint, url_prefix='/api')  # Temporariamente desativado

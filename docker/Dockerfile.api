@@ -1,0 +1,26 @@
+FROM python:3.12-slim-bookworm
+
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Normaliza encoding (Windows UTF-16 -> UTF-8) e remove dependências inválidas.
+COPY docker/normalize_requirements.py .
+COPY requirements.txt .
+
+RUN python normalize_requirements.py requirements.txt \
+    && sed -i '/^[[:space:]]*flask-json-provider/d' requirements.txt 2>/dev/null || true \
+    && pip install --no-cache-dir --upgrade pip \
+    && pip install --no-cache-dir -r requirements.txt
+
+COPY src ./src
+
+WORKDIR /app/src
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+EXPOSE 5000
+
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "1", "--timeout", "120", "main:app"]

@@ -2,11 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Send, MessageCircle, X, User, Bot } from 'lucide-react';
 import './Chat.css';
 
+const SESSION_STORAGE_KEY = 'chatairag_chat_session_id';
+
 const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [sessionId, setSessionId] = useState(() => sessionStorage.getItem(SESSION_STORAGE_KEY) || null);
   const scrollRef = useRef(null);
   const chatRef = useRef(null);
 
@@ -54,13 +57,21 @@ const Chat = () => {
 
     try {
       const apiBase = (process.env.REACT_APP_API_URL || '').replace(/\/$/, '');
+      const payload = { pergunta: input };
+      if (sessionId) {
+        payload.session_id = sessionId;
+      }
       const response = await fetch(`${apiBase}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pergunta: input }),
+        body: JSON.stringify(payload),
       });
       const data = await response.json();
       if (data.status === 'sucesso') {
+        if (data.session_id) {
+          setSessionId(data.session_id);
+          sessionStorage.setItem(SESSION_STORAGE_KEY, data.session_id);
+        }
         setMessages((prev) => [...prev, { role: 'bot', content: data.resposta }]);
       } else {
         setMessages((prev) => [...prev, { role: 'bot', content: 'Erro: ' + data.mensagem }]);

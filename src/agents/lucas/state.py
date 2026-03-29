@@ -1,0 +1,43 @@
+from typing import Annotated, TypedDict, Literal, Optional, NotRequired
+from pydantic import BaseModel, Field
+from langgraph.graph.message import add_messages
+from langchain_groq import ChatGroq
+from .tools import tools
+
+# ==========================================
+# 2. SETUP DO LLM E ESTRUTURAS DE DADOS
+# ==========================================
+llm = ChatGroq(
+    model="llama-3.3-70b-versatile",
+    temperature=0.3, 
+    max_tokens=300,
+    verbose=False
+)
+
+llm_with_tools = llm.bind_tools(tools)
+
+class State(TypedDict):
+    messages: Annotated[list, add_messages]
+    nome: NotRequired[Optional[str]]
+    cpf: NotRequired[Optional[str]]
+    telefone: NotRequired[Optional[str]]
+
+# ==========================================
+# 3. O ROTEADOR INTELIGENTE (Intent Routing)
+# ==========================================
+class DadosCliente(BaseModel):
+    nome: Optional[str] = Field(None, description="Nome completo do usuário")
+    telefone: Optional[str] = Field(None, description="Número do WhatsApp")
+    cpf: Optional[str] = Field(None, description="CPF do usuário")
+
+class Rota(BaseModel):
+    destino: Literal["chat_node", "especialista_node", "cadastro_node"] = Field(
+        description=(
+            "Decida o próximo nó com base na intenção do usuário: "
+            "1. 'cadastro_node': Se o usuário fornecer dados pessoais (nome, CPF, telefone) ou demonstrar interesse em se cadastrar/deixar contato. "
+            "2. 'especialista_node': Se o usuário pedir informações específicas sobre Lucas (quem ele é, projetos, formação ou experiência). "
+            "3. 'chat_node': Para saudações, conversas gerais ou qualquer assunto que não se encaixe nos anteriores."
+        )
+    )
+
+llm_roteador = llm.with_structured_output(Rota)

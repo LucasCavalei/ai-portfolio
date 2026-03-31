@@ -1,3 +1,5 @@
+import sqlite3
+
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode, tools_condition
 from langgraph.checkpoint.memory import MemorySaver
@@ -58,8 +60,18 @@ graph_builder.add_conditional_edges(
 graph_builder.add_edge("tools_cadastro", "cadastro_node")
 graph_builder.add_edge("cadastro_node", END) 
 
-# Compilando com Memória
-memory = MemorySaver()
+# Persistência real em SQLite (quando disponível). Se o pacote não estiver
+# instalado no ambiente, cai para memória em RAM para não quebrar o boot.
+try:
+    from langgraph.checkpoint.sqlite import SqliteSaver  # type: ignore
+
+    conexao_sqlite = sqlite3.connect(
+        "memoria_temporaria_langgraph.sqlite", check_same_thread=False
+    )
+    memory = SqliteSaver(conexao_sqlite)
+except ModuleNotFoundError:
+    memory = MemorySaver()
+
 app_graph = graph_builder.compile(checkpointer=memory)
 
 

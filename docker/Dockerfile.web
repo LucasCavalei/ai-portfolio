@@ -1,9 +1,9 @@
-FROM node:20-alpine AS build
+FROM node:18-alpine AS build
 
 WORKDIR /app
 
-COPY frontend/package.json frontend/.npmrc ./
-RUN npm install --no-audit --fund=false
+COPY frontend/package.json frontend/package-lock.json frontend/.npmrc ./
+RUN npm ci --no-audit --fund=false
 
 COPY frontend/ ./
 

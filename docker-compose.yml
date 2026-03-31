@@ -1,49 +1,101 @@
+# =============================================================================
+
+# Docker Compose — Chat AI RAG (API Flask + site React com Nginx)
+
+# =============================================================================
+
+# Uso recomendado para iniciantes (Windows):  scripts\docker-subir.ps1
+
+# Uso manual:  docker compose up --build
+
+#
+
+# Antes: copie .env.example para .env e preencha as chaves de API.
+
+#
+
+# --- O que existem aqui (dois serviços, NÃO é um só) ---
+
+#   api  → imagem chatairag-api:local   → container chatairag-api   → Flask/Gunicorn (Python)
+
+#   web  → imagem chatairag-web:local   → container chatairag-web   → Nginx servindo o React já
+
+#          compilado (arquivos estáticos HTML/JS/CSS; não roda "npm start" dentro do container)
+
+#
+
+#   docker compose build     → constrói as DUAS imagens (você verá duas linhas de build)
+
+#   docker compose up        → sobe os DOIS containers (é assim que aparecem no Docker Desktop)
+
+#   Só "build" sem "up"      → imagens existem, mas containers podem não estar rodando (Desktop vazio em Containers)
+
+# =============================================================================
+
 networks:
   chatairag:
     driver: bridge
 
 services:
-  # -------------------
-  # Backend (Flask/Gunicorn)
-  # -------------------
+  # --- Backend (Flask + Gunicorn) ---
+
   api:
     build:
       context: .
+
       dockerfile: docker/Dockerfile.api
+
     image: chatairag-api:local
+
     container_name: chatairag-api
+
     env_file:
       - .env
+
     ports:
       - "5000:5000"
+
     networks:
       - chatairag
+
     restart: unless-stopped
+
     healthcheck:
       test:
         [
           "CMD-SHELL",
-          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=8)\"",
+
+          'python -c "import urllib.request; urllib.request.urlopen(''http://127.0.0.1:5000/health'', timeout=8)"',
         ]
+
       interval: 20s
+
       timeout: 8s
+
       retries: 5
+
       start_period: 60s
 
-  # -------------------
-  # Frontend (React build + Nginx)
-  # -------------------
+  # --- Frontend (Nginx + arquivos estáticos do React) ---
+
   web:
     build:
       context: .
+
       dockerfile: docker/Dockerfile.web
+
     image: chatairag-web:local
+
     container_name: chatairag-web
+
     ports:
       - "8080:80"
+
     networks:
       - chatairag
+
     depends_on:
       api:
         condition: service_healthy
+
     restart: unless-stopped

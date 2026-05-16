@@ -21,6 +21,7 @@ class State(TypedDict):
     nome: NotRequired[Optional[str]]
     cpf: NotRequired[Optional[str]]
     telefone: NotRequired[Optional[str]]
+    em_cadastro: NotRequired[Optional[bool]]
 
 # ==========================================
 # 3. O ROTEADOR INTELIGENTE (Intent Routing)
@@ -29,7 +30,7 @@ class DadosCliente(BaseModel):
     nome: Optional[str] = Field(None, description="Nome completo do usuário")
     telefone: Optional[str] = Field(None, description="Número do WhatsApp")
     cpf: Optional[str] = Field(None, description="CPF do usuário")
-
+        
 class Rota(BaseModel):
     destino: Literal["chat_node", "especialista_node", "cadastro_node"] = Field(
         description=(
@@ -40,4 +41,5 @@ class Rota(BaseModel):
         )
     )
 
+# Usado como fallback quando classificar_por_embedding (embedding_router) retorna None.
 llm_roteador = llm.with_structured_output(Rota)

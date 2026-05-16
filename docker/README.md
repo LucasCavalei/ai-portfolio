@@ -4,8 +4,15 @@
 
 | Serviço | O quê | Porta no seu PC |
 |--------|--------|------------------|
+| `mysql` | MySQL 8 (cadastro `clientes`) | `3306` (ou `MYSQL_PORT` no `.env`) |
 | `api`  | Backend Flask (chat, RAG) | `5000` |
 | `web`  | Frontend React (build) + Nginx | `8080` |
+
+No `.env`, com api e mysql no Compose, use por exemplo  
+`ZAP_DATABASE_URL=mysql+pymysql://chatairag:chatairag_secret@mysql:3306/banco_vendas`  
+(mesmo usuário, senha e banco que `MYSQL_*` no `.env` / defaults do compose).
+
+Se já tiver MySQL na máquina na porta 3306, defina `MYSQL_PORT=3307` no `.env` para evitar conflito.
 
 O navegador abre `http://localhost:8080`. O Nginx entrega o React e encaminha `/api/*` para a API.
 

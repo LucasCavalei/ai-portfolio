@@ -18,6 +18,11 @@ DATABASE_URL = os.getenv("ZAP_DATABASE_URL")
 engine = create_engine(DATABASE_URL) if DATABASE_URL else None
 
 
+def cadastro_foi_persistido(retorno_tool: str) -> bool:
+    """True apenas quando o INSERT em `clientes` foi concluído (mensagem da tool)."""
+    return "cadastrado com sucesso! ID:" in (retorno_tool or "")
+
+
 @tool
 def cadastrar_cliente(telefone: str, nome: str = None, cpf: str = None) -> str:
     """
@@ -53,7 +58,7 @@ def cadastrar_cliente(telefone: str, nome: str = None, cpf: str = None) -> str:
         return f"Erro ao cadastrar cliente: {e}"
 @tool
 def consultar_base_de_conhecimento(query: str) -> str:
-    """Busca informações na base de conhecimento sobre as experiências, formação e projetos de Lucas Rodrigues."""
+    """Busca na base de conhecimento (ex.: about me / currículo) experiências, formação e projetos de Lucas Rodrigues."""
     
     # A IA vai inventar a 'query' sozinha baseada na pergunta do usuário.
     # Ex: O usuário digita "Onde o Lucas trabalhou?", a IA manda query="experiência profissional".

@@ -14,7 +14,9 @@
 
 #
 
-# --- O que existem aqui (dois serviços, NÃO é um só) ---
+# --- O que existem aqui (três serviços) ---
+
+#   mysql → imagem mysql:8.0            → container chatairag-mysql → banco para cadastro de clientes
 
 #   api  → imagem chatairag-api:local   → container chatairag-api   → Flask/Gunicorn (Python)
 
@@ -24,9 +26,9 @@
 
 #
 
-#   docker compose build     → constrói as DUAS imagens (você verá duas linhas de build)
+#   docker compose build     → constrói as imagens api e web (mysql usa imagem pronta)
 
-#   docker compose up        → sobe os DOIS containers (é assim que aparecem no Docker Desktop)
+#   docker compose up        → sobe mysql + api + web
 
 #   Só "build" sem "up"      → imagens existem, mas containers podem não estar rodando (Desktop vazio em Containers)
 
@@ -37,6 +39,35 @@ networks:
     driver: bridge
 
 services:
+  # --- MySQL (cadastro de clientes; mesma rede que a API: host = nome do serviço `mysql`) ---
+
+  mysql:
+    image: mysql:8.0
+    container_name: chatairag-mysql
+    restart: unless-stopped
+    networks:
+      - chatairag
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-devroot}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-banco_vendas}
+      MYSQL_USER: ${MYSQL_USER:-chatairag}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-chatairag_secret}
+    ports:
+      - "${MYSQL_PORT:-3308}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/initdb.d:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          'mysqladmin ping -h 127.0.0.1 -uroot -p"$$MYSQL_ROOT_PASSWORD" || exit 1',
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 40s
+
   # --- Backend (Flask + Gunicorn) ---
 
   api:
@@ -57,6 +88,10 @@ services:
 
     networks:
       - chatairag
+
+    depends_on:
+      mysql:
+        condition: service_healthy
 
     restart: unless-stopped
 
@@ -99,3 +134,6 @@ services:
         condition: service_healthy
 
     restart: unless-stopped
+
+volumes:
+  mysql_data:

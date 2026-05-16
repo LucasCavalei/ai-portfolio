@@ -23,11 +23,27 @@ def chat_endpoint():
     try:
         # Marca o início do tempo de processamento
         start_time = time.time()
-        
-        dados = request.get_json()
-        
+
+        # silent=True evita 500 quando o body não é JSON válido (ex.: aspas simples, curl mal formatado).
+        dados = request.get_json(force=True, silent=True)
+        if dados is None:
+            trecho = (request.get_data(as_text=True) or "").strip()
+            if len(trecho) > 120:
+                trecho = trecho[:120] + "..."
+            logger.warning("POST /api/chat: JSON inválido ou vazio. Trecho: %r", trecho)
+            return jsonify({
+                "status": "erro",
+                "mensagem": (
+                    "Corpo deve ser JSON válido com aspas duplas. "
+                    'Ex.: {"pergunta": "sua mensagem"}'
+                ),
+            }), 400
+
         if not dados or "pergunta" not in dados:
-            return jsonify({"erro": "Envie um JSON com o campo 'pergunta'."}), 400
+            return jsonify({
+                "status": "erro",
+                "mensagem": "Envie um JSON com o campo 'pergunta'.",
+            }), 400
             
         pergunta = dados["pergunta"]
         
@@ -62,6 +78,52 @@ def chat_endpoint():
             "error_code": "INTERNAL_ERROR"
         }), 500
         
+@chat_blueprint.route('/waha/sendImage', methods=['POST'])
+def send_image():
+    """Endpoint para envio de imagens via WhatsApp"""
+    try:
+        # Verifica se há arquivo na requisição
+        if 'image' not in request.files:
+            return jsonify({
+                "status": "erro",
+                "mensagem": "Nenhuma imagem enviada"
+            }), 400
+        
+        file = request.files['image']
+        
+        if file.filename == '':
+            return jsonify({
+                "status": "erro", 
+                "mensagem": "Nome de arquivo inválido"
+            }), 400
+        
+        # Verifica se é uma imagem válida
+        allowed_extensions = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+        if not ('.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in allowed_extensions):
+            return jsonify({
+                "status": "erro",
+                "mensagem": "Formato de arquivo não permitido. Use: png, jpg, jpeg, gif ou webp"
+            }), 400
+        
+        # Simula processamento da imagem
+        # Aqui você pode adicionar lógica para salvar ou processar a imagem
+        
+        return jsonify({
+            "status": "sucesso",
+            "mensagem": "Imagem recebida com sucesso",
+            "filename": file.filename,
+            "size": len(file.read()),
+            "timestamp": time.time()
+        })
+        
+    except Exception as e:
+        logger.error(f"Erro no endpoint sendImage: {str(e)}", exc_info=True)
+        return jsonify({
+            "status": "erro",
+            "mensagem": "Erro ao processar imagem",
+            "error": str(e)
+        }), 500
+
 @chat_blueprint.route('/chat/health', methods=['GET'])
 def chat_health():
     """Health check específico do chat"""

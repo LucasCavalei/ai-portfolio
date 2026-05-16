@@ -1,15 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Send, MessageCircle, X, User, Bot } from 'lucide-react';
-import './Chat.css';
+import React, { useState, useEffect, useRef } from "react";
+import { Send, MessageCircle, X, User, Bot } from "lucide-react";
+import "./Chat.css";
 
-const SESSION_STORAGE_KEY = 'chatairag_chat_session_id';
+const SESSION_STORAGE_KEY = "chatairag_chat_session_id";
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [sessionId, setSessionId] = useState(() => sessionStorage.getItem(SESSION_STORAGE_KEY) || null);
+  const [sessionId, setSessionId] = useState(
+    () => sessionStorage.getItem(SESSION_STORAGE_KEY) || null,
+  );
   const scrollRef = useRef(null);
   const chatRef = useRef(null);
 
@@ -33,16 +35,16 @@ const Chat = () => {
     };
 
     if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      document.addEventListener('touchstart', handleTouchOutside);
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleTouchOutside);
     } else {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('touchstart', handleTouchOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleTouchOutside);
     }
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-      document.removeEventListener('touchstart', handleTouchOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleTouchOutside);
     };
   }, [isOpen]);
 
@@ -50,34 +52,43 @@ const Chat = () => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    const userMessage = { role: 'user', content: input };
+    const userMessage = { role: "user", content: input };
     setMessages((prev) => [...prev, userMessage]);
-    setInput('');
+    setInput("");
     setIsLoading(true);
 
     try {
-      const apiBase = (process.env.REACT_APP_API_URL || '').replace(/\/$/, '');
+      const apiBase = (process.env.REACT_APP_API_URL || "").replace(/\/$/, "");
       const payload = { pergunta: input };
       if (sessionId) {
         payload.session_id = sessionId;
       }
       const response = await fetch(`${apiBase}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
       const data = await response.json();
-      if (data.status === 'sucesso') {
+      if (data.status === "sucesso") {
         if (data.session_id) {
           setSessionId(data.session_id);
           sessionStorage.setItem(SESSION_STORAGE_KEY, data.session_id);
         }
-        setMessages((prev) => [...prev, { role: 'bot', content: data.resposta }]);
+        setMessages((prev) => [
+          ...prev,
+          { role: "bot", content: data.resposta },
+        ]);
       } else {
-        setMessages((prev) => [...prev, { role: 'bot', content: 'Erro: ' + data.mensagem }]);
+        setMessages((prev) => [
+          ...prev,
+          { role: "bot", content: "Erro: " + data.mensagem },
+        ]);
       }
     } catch (error) {
-      setMessages((prev) => [...prev, { role: 'bot', content: 'Erro ao conectar com o servidor.' }]);
+      setMessages((prev) => [
+        ...prev,
+        { role: "bot", content: "Erro ao conectar com o servidor." },
+      ]);
     } finally {
       setIsLoading(false);
     }
@@ -85,8 +96,8 @@ const Chat = () => {
 
   if (!isOpen) {
     return (
-      <button 
-        className="chat-toggle" 
+      <button
+        className="chat-toggle"
         onClick={() => setIsOpen(true)}
         title="Abrir chat"
       >
@@ -100,8 +111,8 @@ const Chat = () => {
       <div className="chat-container">
         <div className="chat-header">
           Assistente Virtual - Lucas Rodrigues
-          <button 
-            className="chat-toggle hidden" 
+          <button
+            className="chat-toggle hidden"
             onClick={() => setIsOpen(false)}
             title="Fechar chat"
           >
@@ -110,15 +121,17 @@ const Chat = () => {
         </div>
         <div className="chat-messages-area" ref={scrollRef}>
           {messages.length === 0 && (
-            <div style={{ textAlign: 'center', color: '#666', padding: '20px' }}>
+            <div
+              style={{ textAlign: "center", color: "#666", padding: "20px" }}
+            >
               Olá! Sou o assistente virtual do Lucas. Como posso ajudar?
             </div>
           )}
           {messages.map((message, index) => (
             <div key={index} className={`msg-row ${message.role}`}>
               <div className="bubble">
-                {message.role === 'user' && <User size={16} />}
-                {message.role === 'bot' && <Bot size={16} />}
+                {message.role === "user" && <User size={16} />}
+                {message.role === "bot" && <Bot size={16} />}
                 {message.content}
               </div>
             </div>

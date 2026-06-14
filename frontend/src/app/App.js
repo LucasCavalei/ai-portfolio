@@ -1,5 +1,6 @@
 import React, { lazy } from "react";
 
+import { ClickToComponent } from "click-to-react-component";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { HelmetMeta } from "./HelmetMeta";
 import { ThemeProvider } from "../components/theme/ThemeProvider";
@@ -17,6 +18,7 @@ export const App = () => {
     return (
       <ThemeProvider>
         <CssBaseline />
+        <ClickToComponent />
         <Router>
           <HelmetMeta />
           <Switch>

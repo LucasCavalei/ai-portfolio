@@ -14,6 +14,9 @@ ENV NODE_ENV=production
 # Vazio: usa rotas relativas no Nginx (Chat.js monta `${apiBase}/api/chat`).
 ENV REACT_APP_API_URL=
 
+# frontend/.env (copiado acima) é lido pelo react-scripts no build.
+# Variáveis REACT_APP_EMAILJS_* ficam embutidas no JS estático — rebuild obrigatório ao alterar.
+
 RUN npx react-scripts build
 
 FROM nginx:1.27-alpine

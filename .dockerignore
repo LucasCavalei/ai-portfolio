@@ -1,7 +1,8 @@
 venv
 __pycache__
 .git
-.env
+# Só o .env da raiz (API). frontend/.env entra no build do React (REACT_APP_*).
+/.env
 *.pyc
 .pytest_cache
 node_modules

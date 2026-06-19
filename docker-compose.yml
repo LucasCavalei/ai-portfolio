@@ -116,8 +116,8 @@ services:
   web:
     build:
       context: .
-
       dockerfile: docker/Dockerfile.web
+      # frontend/.env (REACT_APP_*) é copiado no build; ver .dockerignore (/.env ignora só a raiz).
 
     image: chatairag-web:local
 

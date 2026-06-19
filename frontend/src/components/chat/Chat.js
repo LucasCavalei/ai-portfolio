@@ -1,98 +1,20 @@
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
 import { Send, MessageCircle, X, User, Bot } from "lucide-react";
+import { useChat } from "../../hooks/useChat";
 import "./Chat.css";
 
-const SESSION_STORAGE_KEY = "chatairag_chat_session_id";
-
-const Chat = () => {
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const [sessionId, setSessionId] = useState(
-    () => sessionStorage.getItem(SESSION_STORAGE_KEY) || null,
-  );
-  const scrollRef = useRef(null);
-  const chatRef = useRef(null);
-
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [messages]);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (chatRef.current && !chatRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-
-    const handleTouchOutside = (event) => {
-      if (chatRef.current && !chatRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-      document.addEventListener("touchstart", handleTouchOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("touchstart", handleTouchOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("touchstart", handleTouchOutside);
-    };
-  }, [isOpen]);
-
-  const sendMessage = async (e) => {
-    e.preventDefault();
-    if (!input.trim()) return;
-
-    const userMessage = { role: "user", content: input };
-    setMessages((prev) => [...prev, userMessage]);
-    setInput("");
-    setIsLoading(true);
-
-    try {
-      const apiBase = (process.env.REACT_APP_API_URL || "").replace(/\/$/, "");
-      const payload = { pergunta: input };
-      if (sessionId) {
-        payload.session_id = sessionId;
-      }
-      const response = await fetch(`${apiBase}/api/chat`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await response.json();
-      if (data.status === "sucesso") {
-        if (data.session_id) {
-          setSessionId(data.session_id);
-          sessionStorage.setItem(SESSION_STORAGE_KEY, data.session_id);
-        }
-        setMessages((prev) => [
-          ...prev,
-          { role: "bot", content: data.resposta },
-        ]);
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          { role: "bot", content: "Erro: " + data.mensagem },
-        ]);
-      }
-    } catch (error) {
-      setMessages((prev) => [
-        ...prev,
-        { role: "bot", content: "Erro ao conectar com o servidor." },
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+export const Chat = () => {
+  const {
+    messages,
+    input,
+    setInput,
+    isLoading,
+    isOpen,
+    setIsOpen,
+    scrollRef,
+    chatRef,
+    sendMessage,
+  } = useChat();
 
   if (!isOpen) {
     return (
@@ -100,6 +22,7 @@ const Chat = () => {
         className="chat-toggle"
         onClick={() => setIsOpen(true)}
         title="Abrir chat"
+        aria-label="Abrir assistente virtual"
       >
         <MessageCircle size={24} />
       </button>
@@ -110,28 +33,26 @@ const Chat = () => {
     <div className="chat-wrapper" ref={chatRef}>
       <div className="chat-container">
         <div className="chat-header">
-          Assistente Virtual - Lucas Rodrigues
+          <span>Assistente Virtual — Lucas Rodrigues</span>
           <button
-            className="chat-toggle hidden"
+            className="chat-close"
             onClick={() => setIsOpen(false)}
             title="Fechar chat"
+            aria-label="Fechar chat"
           >
             <X size={20} />
           </button>
         </div>
         <div className="chat-messages-area" ref={scrollRef}>
           {messages.length === 0 && (
-            <div
-              style={{ textAlign: "center", color: "#666", padding: "20px" }}
-            >
+            <div className="chat-empty">
               Olá! Sou o assistente virtual do Lucas. Como posso ajudar?
             </div>
           )}
-          {messages.map((message, index) => (
-            <div key={index} className={`msg-row ${message.role}`}>
+          {messages.map((message) => (
+            <div key={message.id} className={`msg-row ${message.role}`}>
               <div className="bubble">
-                {message.role === "user" && <User size={16} />}
-                {message.role === "bot" && <Bot size={16} />}
+                {message.role === "user" ? <User size={16} /> : <Bot size={16} />}
                 {message.content}
               </div>
             </div>
@@ -152,8 +73,13 @@ const Chat = () => {
             onChange={(e) => setInput(e.target.value)}
             placeholder="Digite sua pergunta..."
             disabled={isLoading}
+            aria-label="Mensagem do chat"
           />
-          <button type="submit" disabled={isLoading || !input.trim()}>
+          <button
+            type="submit"
+            disabled={isLoading || !input.trim()}
+            aria-label="Enviar mensagem"
+          >
             <Send size={20} />
           </button>
         </form>

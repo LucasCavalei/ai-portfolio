@@ -1,48 +1,26 @@
-/* eslint-disable jsx-a11y/anchor-is-valid */
-/* eslint-disable react-hooks/rules-of-hooks */
 import React from "react";
 import { Typography } from "@material-ui/core";
-import { useState } from "react";
-
+import { NAV_ITEMS } from "../../constants/navigation";
+import { useActiveSection } from "../../hooks/useActiveSection";
 import "./SideNavbar.css";
 
 export const SideNavbar = () => {
-  const [activeNav, setActiveNav] = useState('#');
+  const activeSection = useActiveSection();
 
   return (
-    <nav>
-      <a href="#" 
-        onClick={() => setActiveNav('#')}
-        className={activeNav === '#' ? 'active' : ''}
-      >
-        <Typography>
-          Home
-        </Typography>
-      </a>
-      <a href="#works"
-        onClick={() => setActiveNav('#works')}
-        className={activeNav === '#works' ? 'active' : ''}
-      >
-        <Typography>
-          Projetos
-        </Typography>
-      </a>
-      <a href="#about" 
-        onClick={() => setActiveNav('#about')}
-        className={activeNav === '#about' ? 'active' : ''}
-      >
-        <Typography>
-          Sobre
-        </Typography>
-      </a>
-      <a href="#contact"
-        onClick={() => setActiveNav('#contact')}
-        className={activeNav === '#contact' ? 'active' : ''}
-      >
-        <Typography>
-          Contato
-        </Typography>
-      </a>
+    <nav className="side-nav" aria-label="Navegação principal">
+      {NAV_ITEMS.map(({ id, label, href }) => (
+        <a
+          key={id}
+          href={href}
+          className={activeSection === id ? "active" : ""}
+          aria-current={activeSection === id ? "true" : undefined}
+        >
+          <Typography component="span" variant="body2">
+            {label}
+          </Typography>
+        </a>
+      ))}
     </nav>
   );
 };

@@ -1,93 +1,113 @@
-import React, { useRef } from 'react';
-import emailjs from '@emailjs/browser';
-import { Container, TextField, Button, Typography } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import React, { useState } from "react";
+import { TextField, Button, Typography } from "@material-ui/core";
+import { Section } from "../../layouts/Section";
+import { sendContactEmail } from "../../services/contactApi";
+import "./Contact.css";
 
-const useStyles = makeStyles((theme) => ({
-  form: {
-    width: '100%',
-    marginTop: theme.spacing(3),
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
-  },
-}));
+const INITIAL_FORM = {
+  from_name: "",
+  reply_to: "",
+  message: "",
+};
 
 export const Contact = () => {
-  const classes = useStyles();
-  const form = useRef();
+  const [form, setForm] = useState(INITIAL_FORM);
+  const [status, setStatus] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const sendEmail = (e) => {
+  const handleChange = (field) => (e) => {
+    setForm((prev) => ({ ...prev, [field]: e.target.value }));
+  };
+
+  const sendEmail = async (e) => {
     e.preventDefault();
+    setStatus("sending");
+    setErrorMessage("");
 
-    emailjs
-      .sendForm(
-        process.env.REACT_APP_EMAILJS_SERVICE_ID,
-        process.env.REACT_APP_EMAILJS_TEMPLATE_ID,
-        form.current,
-        process.env.REACT_APP_EMAILJS_USER_ID // This is the Public Key fix
-      )
-      .then(
-        (result) => {
-          console.log('SUCCESS!', result.text);
-          alert('Mensagem enviada com sucesso!');
-          form.current.reset();
-        },
-        (error) => {
-          console.log('FAILED...', error.text);
-          alert('Ocorreu um erro. Verifique o console para mais detalhes.');
-        }
-      );
+    try {
+      await sendContactEmail(form);
+      setStatus("success");
+      setForm(INITIAL_FORM);
+    } catch (error) {
+      setStatus("error");
+      const apiText = error?.text || error?.message;
+      setErrorMessage(apiText || "Erro desconhecido ao enviar.");
+      console.error("EmailJS error:", error);
+    }
   };
 
   return (
-    <Container component="section" id="contact" maxWidth="sm">
-      <Typography variant="h4" component="h2" gutterBottom align="center">
-        Entre em Contato
-      </Typography>
-      <form ref={form} onSubmit={sendEmail} className={classes.form} noValidate>
-        <TextField
-          variant="outlined"
-          margin="normal"
-          required
-          fullWidth
-          id="from_name"
-          label="Seu Nome"
-          name="from_name"
-          autoComplete="name"
-        />
-        <TextField
-          variant="outlined"
-          margin="normal"
-          required
-          fullWidth
-          id="reply_to"
-          label="Seu E-mail"
-          name="reply_to"
-          autoComplete="email"
-        />
-        <TextField
-          variant="outlined"
-          margin="normal"
-          required
-          fullWidth
-          name="message"
-          label="Sua Mensagem"
-          type="text"
-          id="message"
-          multiline
-          rows={4}
-        />
-        <Button
-          type="submit"
-          fullWidth
-          variant="contained"
-          color="primary"
-          className={classes.submit}
-        >
-          Enviar Mensagem
-        </Button>
-      </form>
-    </Container>
+    <Section id="contact" title="Contato" subtitle="Vamos conversar">
+      <div className="contact">
+        <div className="contact__intro">
+          <Typography variant="h5" component="p" className="contact__headline">
+            Tem um projeto em mente?
+          </Typography>
+          <Typography variant="body1" className="contact__description">
+            Envie uma mensagem e retorno o mais breve possível.
+          </Typography>
+        </div>
+        <form onSubmit={sendEmail} className="contact__form" noValidate>
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            id="from_name"
+            label="Seu Nome"
+            name="from_name"
+            value={form.from_name}
+            onChange={handleChange("from_name")}
+            autoComplete="name"
+          />
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            id="reply_to"
+            label="Seu E-mail"
+            name="reply_to"
+            type="email"
+            value={form.reply_to}
+            onChange={handleChange("reply_to")}
+            autoComplete="email"
+          />
+          <TextField
+            variant="outlined"
+            margin="normal"
+            required
+            fullWidth
+            name="message"
+            label="Sua Mensagem"
+            id="message"
+            multiline
+            rows={4}
+            value={form.message}
+            onChange={handleChange("message")}
+          />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            color="primary"
+            className="contact__submit"
+            disabled={status === "sending"}
+          >
+            {status === "sending" ? "Enviando..." : "Enviar Mensagem"}
+          </Button>
+          {status === "success" && (
+            <Typography className="contact__feedback contact__feedback--success">
+              Mensagem enviada com sucesso!
+            </Typography>
+          )}
+          {status === "error" && (
+            <Typography className="contact__feedback contact__feedback--error">
+              {errorMessage}
+            </Typography>
+          )}
+        </form>
+      </div>
+    </Section>
   );
 };

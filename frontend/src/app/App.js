@@ -1,32 +1,37 @@
-import React, { lazy } from "react";
-
+import React, { lazy, Suspense } from "react";
 import { ClickToComponent } from "click-to-react-component";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { CircularProgress, Box } from "@material-ui/core";
 import { HelmetMeta } from "./HelmetMeta";
 import { ThemeProvider } from "../components/theme/ThemeProvider";
 import { CssBaseline } from "@material-ui/core";
 import { logCredits } from "../utils/logCredits";
-
 import { Home } from "../pages/Home";
 
-// const Resume = lazy(() => import("../pages/Resume"));
 const PageNotFound = lazy(() => import("../pages/PageNotFound"));
 
-export const App = () => {
-    logCredits();
+const PageLoader = () => (
+  <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+    <CircularProgress color="primary" />
+  </Box>
+);
 
-    return (
-      <ThemeProvider>
-        <CssBaseline />
-        <ClickToComponent />
-        <Router>
-          <HelmetMeta />
+export const App = () => {
+  logCredits();
+
+  return (
+    <ThemeProvider>
+      <CssBaseline />
+      <ClickToComponent />
+      <Router>
+        <HelmetMeta />
+        <Suspense fallback={<PageLoader />}>
           <Switch>
-              <Route path="/" exact component={Home} />
-              {/* <Route path="/resume" component={Resume} /> */}
-              <Route path="*" component={PageNotFound} />
+            <Route path="/" exact component={Home} />
+            <Route path="*" component={PageNotFound} />
           </Switch>
-        </Router>
-      </ThemeProvider>
-    );
+        </Suspense>
+      </Router>
+    </ThemeProvider>
+  );
 };

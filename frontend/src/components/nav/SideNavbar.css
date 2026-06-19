@@ -1,21 +1,31 @@
-nav {
+.side-nav {
   position: fixed;
   display: flex;
   flex-direction: row-reverse;
-  transform: rotate(-90deg) translate3d(-50%,0,0);
+  transform: rotate(-90deg) translate3d(-50%, 0, 0);
   top: 15%;
   left: -6.5rem;
+  z-index: 100;
 }
-nav a {
+
+.side-nav a {
   margin-right: 20px;
   text-decoration: none;
-  color: #575757;
+  color: var(--color-muted);
+  transition: color 0.2s ease;
 }
-nav a:hover {
-  margin-right: 20px;
-  text-decoration: none;
-  color: #ec704c;
+
+.side-nav a:hover,
+.side-nav a.active {
+  color: var(--color-secondary);
 }
-nav a.active {
-  color: #ec704c;
+
+@media (max-width: 768px) {
+  .side-nav {
+    left: -5.5rem;
+  }
+
+  .side-nav a {
+    margin-right: 14px;
+  }
 }

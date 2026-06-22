@@ -7,19 +7,39 @@
   margin: 0 auto;
 }
 
-.about__img {
-  flex: 1;
-  min-height: 18rem;
-  border-radius: 16px;
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
+.about__photo-frame {
+  flex-shrink: 0;
+  width: 240px;
+  height: 320px;
+  padding: 3px;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  background: linear-gradient(145deg, var(--color-primary), var(--color-secondary));
   box-shadow: var(--shadow-card);
-  border: 1px solid var(--color-border);
+}
+
+.about__photo {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 135%;
+  display: block;
+  object-fit: cover;
+  object-position: center 63%;
+  transform: translateY(-11%);
+  border-radius: 17px;
+  background: linear-gradient(
+    180deg,
+    rgba(66, 188, 188, 0.08) 0%,
+    var(--color-surface) 45%,
+    var(--color-surface) 100%
+  );
 }
 
 .about__content {
   flex: 1;
+  min-width: 0;
 }
 
 .about__greeting {
@@ -59,8 +79,9 @@
     gap: 2rem;
   }
 
-  .about__img {
-    width: 100%;
-    min-height: 14rem;
+  .about__photo-frame {
+    width: 220px;
+    height: 290px;
+    margin: 0 auto;
   }
 }

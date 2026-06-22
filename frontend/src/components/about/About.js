@@ -3,7 +3,7 @@ import { Typography } from "@material-ui/core";
 import { TextDecrypt } from "../content/TextDecrypt";
 import { FirstName, LastName } from "../../utils/getName";
 import { Section } from "../../layouts/Section";
-import profile from "../../assets/profile.png";
+import profile from "../../assets/profile-transparent.png";
 import "./About.css";
 
 export const About = () => {
@@ -16,14 +16,13 @@ Estou aqui para lhe ajudar a criar sistemas tops.`;
   return (
     <Section id="about" title="Sobre mim" subtitle="Quem sou">
       <div className="about">
-        <div
-          className="about__img"
-          style={{
-            backgroundImage: `url(${profile})`,
-          }}
-          role="img"
-          aria-label={`Foto de ${FirstName} ${LastName}`}
-        />
+        <div className="about__photo-frame">
+          <img
+            src={profile}
+            alt={`Foto de ${FirstName} ${LastName}`}
+            className="about__photo"
+          />
+        </div>
         <div className="about__content">
           <Typography component="h3" variant="h5" className="about__greeting">
             <TextDecrypt text={greetings} />

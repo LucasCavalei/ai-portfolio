@@ -9,9 +9,7 @@ import "./About.css";
 export const About = () => {
   const greetings = "Olá!";
   const aboutme = `Me chamo ${FirstName} ${LastName}, Full Stack Developer multidisciplinar.
-Embora minha base seja o desenvolvimento web, estou expandindo minha atuação para o campo de Automação e Bots (IA).
-Sempre topando qualquer desafio.
-Estou aqui para lhe ajudar a criar sistemas tops.`;
+Embora minha base seja o desenvolvimento web, estou expandindo minha atuação para o campo de Automação e Bots (IA).`;
 
   return (
     <Section id="about" title="Sobre mim" subtitle="Quem sou">

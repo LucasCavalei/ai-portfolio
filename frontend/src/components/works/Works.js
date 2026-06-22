@@ -8,6 +8,7 @@ import Portfolio from "../../assets/recentprojects/react-portfolio.png";
 import Agro from "../../assets/recentprojects/agro.svg";
 import Eleitoral1 from "../../assets/recentprojects/eleitoral1.svg";
 import Workteam from "../../assets/recentprojects/workteam.svg";
+import Whatsapp from "../../assets/whatsappPC.svg";
 
 import "./Works.css";
 
@@ -16,6 +17,7 @@ const PROJECT_IMAGES = {
   agro: Agro,
   eleitoral1: Eleitoral1,
   workteam: Workteam,
+  whatsapp: Whatsapp,
 };
 
 export const Works = () => (
@@ -31,7 +33,7 @@ export const Works = () => (
           </div>
           <div className="project__content">
             <h3 className="project__title">
-              <TextDecrypt text={`${project.id}. ${project.title}`} />
+              <TextDecrypt text={project.title} />
             </h3>
             <ProjectDescription description={project.description} />
           </div>

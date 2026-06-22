@@ -1,27 +1,34 @@
 [
   {
     "id": 1,
+    "title": "Atendimento WhatsApp com IA",
+    "description": "Automatizamos o WhatsApp da sua empresa com um robô inteligente que atende seus clientes 24 horas por dia.\nEle responde instantaneamente às dúvidas frequentes, oferecendo suporte rápido, com agendamento  automatico e eliminando o tempo de espera.",
+    "alter": "Atendimento WhatsApp com IA",
+    "image": "whatsapp"
+  },
+  {
+    "id": 2,
     "title": "Pesquisa Política",
     "description": "Plataforma para automação de sondagens eleitorais o usuário dispara chamadas onde um agente de IA conversacional entrevista os eleitores, seguindo um roteiro para captar intenções de voto.",
     "alter": "Pesquisa Política",
     "image": "eleitoral1"
   },
   {
-    "id": 2,
+    "id": 3,
     "title": "Agro Defesa",
     "description": "Aplicação web desenvolvida para o evento Agro Defesa da Agendacia de Defesa Agropecuária e Florestal (ADAF) realizado no Centro de Convenções Vasco Vasques. O sistema foi criado para apresentar de forma interativa os tópicos abordados nas palestras, detalhando as responsabilidades e áreas de atuação da Agência de Defesa Agropecuária e Florestal (ADAF).",
     "alter": "Agro Defesa",
     "image": "agro"
   },
   {
-    "id": 3,
+    "id": 4,
     "title": "Design de Interface moderno",
     "description": "Interface adaptativa de alta performance desenvolvida com Mobile-First. Utiliza React js, Angular JS, Tailwind CSS e Grid Layout para garantir uma experiência fluida em qualquer dispositivo, priorizando velocidade e acessibilidade.",
     "alter": "React Portfolio",
     "image": "portfolio"
   },
   {
-    "id": 4,
+    "id": 5,
     "title": "Checklist",
     "description": "Minimalista focado em produtividade pessoal. O app permite que usuários organizem sua rotina através da criação, edição e priorização de afazeres diários.",
     "alter": "Checklist",

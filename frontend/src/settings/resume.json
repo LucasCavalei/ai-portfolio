@@ -8,6 +8,7 @@
     "x_title": "Olá, eu sou",
     "job1": "Whamais",
     "job2": "Web",
+    "tagline": "Desenvolvimento Full Stack criando soluções web modernas e automações inteligentes.",
     "description": "Entusiasta de desenvolvimento web sempre pronto para novos desafios! Estou aqui para ajudar a criar ideias incríveis e funcionais.",
     "summary": "Manaus - Amazonas, Brasil",
     "keywords": "personal,website,portfolio,template,kit,langchain,IA,chatbot,webdev,web,developer,angeles,brazil,react,github,linkedin,google,gitlab,telegram,material,design,ui,webapp,markdown",
@@ -40,6 +41,18 @@
         "x_icon": "fab fa-github"
       }
     ]
+  },
+
+  "company": {
+    "name": "Whamais",
+    "slogan": "Comunicação Inteligente",
+    "tagline": "IA especialista no seu negócio: fala por voz, agenda e atende no WhatsApp. Sua comunicação no piloto automático.",
+    "features": ["Voz", "WhatsApp", "Agenda", "IA"]
+  },
+
+  "founder": {
+    "label": "Fundado e desenvolvido por",
+    "role": "Fundador & Desenvolvedor Full Stack"
   },
 
   "skills": [

@@ -1,20 +1,22 @@
+from pathlib import Path
+
 from dotenv import load_dotenv
 from langchain_community.document_loaders import PyPDFDirectoryLoader, DirectoryLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter 
-from langchain_community.document_loaders import TextLoader 
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_community.document_loaders import TextLoader
 from langchain_pinecone import PineconeVectorStore
 from langchain_cohere import CohereEmbeddings
 from pinecone import Pinecone
 import os
 
-from main import PINECONE_INDEX_NAME
-
-load_dotenv()
+# Raiz do projeto (…/chatAiRag), independentemente do cwd.
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
+load_dotenv(_PROJECT_ROOT / ".env")
 
 PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
-PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME") 
+PINECONE_INDEX_NAME = os.getenv("PINECONE_INDEX_NAME")
 
-PASTA_BASE = "base"
+PASTA_BASE = str(_PROJECT_ROOT / "base")
 
 def load_documents(): 
     # Carrega arquivos PDF
@@ -71,7 +73,18 @@ def vetorizar_chunks(chunks):
     )
     print(f"Sucesso! Todos os dados foram enviados para o índice '{PINECONE_INDEX_NAME}' na nuvem.")
 
-def create_db(): 
+def create_db():
+    if not PINECONE_API_KEY or not PINECONE_INDEX_NAME:
+        print(
+            "Defina PINECONE_API_KEY e PINECONE_INDEX_NAME no arquivo .env "
+            f"na raiz do projeto ({_PROJECT_ROOT})."
+        )
+        return
+    if not os.getenv("COHERE_API_KEY"):
+        print("Defina COHERE_API_KEY no arquivo .env.")
+        return
+
+    print(f"Lendo documentos de: {PASTA_BASE}")
     documents = load_documents()
     if not documents:
         print("Nenhum documento encontrado na pasta.")

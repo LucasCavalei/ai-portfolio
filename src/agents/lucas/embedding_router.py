@@ -35,6 +35,12 @@ ANCHORS: Dict[str, List[str]] = {
         "enviar meus dados pessoais",
     ],
     "especialista_node": [
+        "o que é a Whamais",
+        "como funciona a Whamais",
+        "serviços da Whamais",
+        "atendimento WhatsApp com IA",
+        "automação de WhatsApp e voz",
+        "comunicação inteligente Whamais",
         "quem é o Lucas Rodrigues",
         "quais projetos o Lucas fez",
         "onde o Lucas trabalhou",
@@ -43,6 +49,7 @@ ANCHORS: Dict[str, List[str]] = {
         "fale sobre o currículo do Lucas",
         "o que o Lucas desenvolve",
         "stack tecnológica do Lucas",
+        "fundador da Whamais",
     ],
     "chat_node": [
         "oi tudo bem",

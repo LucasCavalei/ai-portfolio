@@ -22,6 +22,7 @@ class State(TypedDict):
     cpf: NotRequired[Optional[str]]
     telefone: NotRequired[Optional[str]]
     em_cadastro: NotRequired[Optional[bool]]
+    topico: NotRequired[Optional[str]]  # "whamais" | "lucas"
 
 # ==========================================
 # 3. O ROTEADOR INTELIGENTE (Intent Routing)
@@ -36,7 +37,8 @@ class Rota(BaseModel):
         description=(
             "Decida o próximo nó com base na intenção do usuário: "
             "1. 'cadastro_node': Se o usuário fornecer dados pessoais (nome, CPF, telefone) ou demonstrar interesse em se cadastrar/deixar contato. "
-            "2. 'especialista_node': Se o usuário pedir informações específicas sobre Lucas (quem ele é, projetos, formação ou experiência). "
+            "2. 'especialista_node': Se o usuário pedir informações sobre a Whamais (empresa, soluções IA, WhatsApp, voz, agenda) "
+            "ou sobre Lucas Rodrigues (fundador, carreira, projetos, formação, experiência). "
             "3. 'chat_node': Para saudações, conversas gerais ou qualquer assunto que não se encaixe nos anteriores."
         )
     )

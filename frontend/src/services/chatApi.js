@@ -1,10 +1,13 @@
 const getApiBase = () =>
   (process.env.REACT_APP_API_URL || "").replace(/\/$/, "");
 
-export const sendChatMessage = async ({ pergunta, sessionId }) => {
+export const sendChatMessage = async ({ pergunta, sessionId, topico }) => {
   const payload = { pergunta };
   if (sessionId) {
     payload.session_id = sessionId;
+  }
+  if (topico) {
+    payload.topico = topico;
   }
 
   const response = await fetch(`${getApiBase()}/api/chat`, {

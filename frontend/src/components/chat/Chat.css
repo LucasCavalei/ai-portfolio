@@ -92,6 +92,72 @@
   font-size: 0.9rem;
 }
 
+.chat-topic-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0.25rem 0.75rem;
+}
+
+.chat-topic-picker__intro {
+  margin: 0;
+  text-align: center;
+  color: var(--color-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.chat-topic-picker__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.chat-topic-btn {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-foreground);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.chat-topic-btn:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.chat-topic-btn--primary {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  color: var(--color-white);
+  border: none;
+}
+
+.chat-topic-btn--primary:hover {
+  color: var(--color-white);
+  filter: brightness(1.05);
+}
+
+.chat-topic-switch {
+  align-self: center;
+  background: transparent;
+  border: none;
+  color: var(--color-muted);
+  font-size: 0.75rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0.25rem 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.chat-topic-switch:hover {
+  color: var(--color-secondary);
+}
+
 .msg-row {
   display: flex;
   width: 100%;

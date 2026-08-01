@@ -23,6 +23,7 @@ class State(TypedDict):
     telefone: NotRequired[Optional[str]]
     em_cadastro: NotRequired[Optional[bool]]
     topico: NotRequired[Optional[str]]  # "whamais" | "lucas"
+    idioma: NotRequired[Optional[str]]  # "pt" | "en"
 
 # ==========================================
 # 3. O ROTEADOR INTELIGENTE (Intent Routing)

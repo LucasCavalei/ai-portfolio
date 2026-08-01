@@ -8,8 +8,8 @@ import Chat from "../chat/Chat";
 import { Typography, Container } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { TextDecrypt } from "./TextDecrypt";
-import Resume from "../../settings/resume.json";
 import { FirstName, LastName } from "../../utils/getName";
+import { useLanguage } from "../i18n/LanguageProvider";
 import "./Content.css";
 
 const useStyles = makeStyles((theme) => ({
@@ -33,6 +33,7 @@ const useStyles = makeStyles((theme) => ({
 
 export const Content = () => {
   const classes = useStyles();
+  const { t, resume } = useLanguage();
 
   return (
     <>
@@ -43,11 +44,11 @@ export const Content = () => {
           </Typography>
 
           <Typography variant="h1" component="h1" className={classes.jobs}>
-            <TextDecrypt text={`${Resume.basics.job1} + `} />
-            <TextDecrypt text={Resume.basics.job2} />
+            <TextDecrypt text={`${resume.basics.job1} + `} />
+            <TextDecrypt text={resume.basics.job2} />
           </Typography>
 
-          <p className="hero-content__tagline">{Resume.basics.tagline}</p>
+          <p className="hero-content__tagline">{resume.basics.tagline}</p>
 
           <div className="hero-content__actions">
             <a
@@ -55,14 +56,14 @@ export const Content = () => {
               className="hero-content__btn hero-content__btn--primary"
             >
               <i className="fas fa-briefcase" aria-hidden="true" />
-              Ver Projetos
+              {t("hero.viewProjects")}
             </a>
             <a
               href="#contact"
               className="hero-content__btn hero-content__btn--secondary"
             >
               <i className="fas fa-envelope" aria-hidden="true" />
-              Contato
+              {t("hero.contact")}
             </a>
           </div>
         </div>

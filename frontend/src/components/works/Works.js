@@ -2,7 +2,7 @@ import React from "react";
 import { TextDecrypt } from "../content/TextDecrypt";
 import { ProjectDescription } from "./ProjectDescription";
 import { Section } from "../../layouts/Section";
-import projectsData from "../../data/projects.json";
+import { useLanguage } from "../i18n/LanguageProvider";
 
 import Portfolio from "../../assets/recentprojects/react-portfolio.png";
 import Agro from "../../assets/recentprojects/agro.svg";
@@ -20,25 +20,29 @@ const PROJECT_IMAGES = {
   whatsapp: Whatsapp,
 };
 
-export const Works = () => (
-  <Section id="works" title="Projetos" subtitle="Portfólio">
-    <div className="projects-list">
-      {projectsData.map((project, index) => (
-        <article
-          className={`project${index % 2 !== 0 ? " project--reverse" : ""}`}
-          key={project.id}
-        >
-          <div className="project__img">
-            <img src={PROJECT_IMAGES[project.image]} alt={project.alter} />
-          </div>
-          <div className="project__content">
-            <h3 className="project__title">
-              <TextDecrypt text={project.title} />
-            </h3>
-            <ProjectDescription description={project.description} />
-          </div>
-        </article>
-      ))}
-    </div>
-  </Section>
-);
+export const Works = () => {
+  const { t, projects } = useLanguage();
+
+  return (
+    <Section id="works" title={t("works.title")} subtitle={t("works.subtitle")}>
+      <div className="projects-list">
+        {projects.map((project, index) => (
+          <article
+            className={`project${index % 2 !== 0 ? " project--reverse" : ""}`}
+            key={project.id}
+          >
+            <div className="project__img">
+              <img src={PROJECT_IMAGES[project.image]} alt={project.alter} />
+            </div>
+            <div className="project__content">
+              <h3 className="project__title">
+                <TextDecrypt text={project.title} />
+              </h3>
+              <ProjectDescription description={project.description} />
+            </div>
+          </article>
+        ))}
+      </div>
+    </Section>
+  );
+};

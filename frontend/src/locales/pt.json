@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "home": "Home",
+    "works": "Projetos",
+    "about": "Sobre",
+    "contact": "Contato",
+    "ariaLabel": "Navegação principal"
+  },
+  "hero": {
+    "viewProjects": "Ver Projetos",
+    "contact": "Contato"
+  },
+  "works": {
+    "title": "Projetos",
+    "subtitle": "Portfólio",
+    "collapse": "Recolher descrição",
+    "expand": "Ver descrição completa"
+  },
+  "about": {
+    "title": "Sobre mim",
+    "subtitle": "Quem sou",
+    "greeting": "Olá!",
+    "bio": "Me chamo {firstName} {lastName}, Full Stack Developer multidisciplinar.\nEmbora minha base seja o desenvolvimento web, estou expandindo minha atuação para o campo de Automação e Bots (IA).",
+    "photoAlt": "Foto de {firstName} {lastName}",
+    "cta": "Manda um olá"
+  },
+  "contact": {
+    "title": "Contato",
+    "subtitle": "Vamos conversar",
+    "headline": "Tem um projeto em mente?",
+    "description": "Envie uma mensagem e retorno o mais breve possível.",
+    "name": "Seu Nome",
+    "email": "Seu E-mail",
+    "message": "Sua Mensagem",
+    "sending": "Enviando...",
+    "submit": "Enviar Mensagem",
+    "success": "Mensagem enviada com sucesso!",
+    "errorFallback": "Erro desconhecido ao enviar."
+  },
+  "footer": {
+    "resume": "Currículo"
+  },
+  "theme": {
+    "toggle": "Trocar de modo"
+  },
+  "language": {
+    "toggle": "Switch to English",
+    "ariaLabel": "Mudar idioma para inglês"
+  },
+  "chat": {
+    "open": "Abrir chat",
+    "openAria": "Abrir assistente virtual",
+    "close": "Fechar chat",
+    "title": "Assistente Virtual",
+    "titleWhamais": "Assistente — Whamais",
+    "titleLucas": "Assistente — Lucas Rodrigues",
+    "intro": "Olá! Sou o assistente da {brand}.",
+    "introAsk": "Sobre o que você quer conversar?",
+    "topicWhamais": "Conversar sobre a Whamais",
+    "topicLucas": "Conversar sobre o Lucas",
+    "switchTopic": "Trocar assunto",
+    "typing": "Digitando...",
+    "placeholder": "Digite sua pergunta...",
+    "placeholderNoTopic": "Escolha um assunto acima para começar",
+    "inputAria": "Mensagem do chat",
+    "sendAria": "Enviar mensagem",
+    "greetingWhamais": "Perfeito! Posso te contar sobre a Whamais — soluções de comunicação com IA, WhatsApp, voz e agendamentos. O que você gostaria de saber?",
+    "greetingLucas": "Certo! Posso falar sobre Lucas Rodrigues — trajetória, skills e projetos. O que você quer saber?",
+    "errorPrefix": "Erro:",
+    "connectionError": "Erro ao conectar com o servidor."
+  },
+  "notFound": {
+    "title": "Página não encontrada",
+    "text": "O endereço que você acessou não existe ou foi movido.",
+    "back": "Voltar ao início"
+  }
+}

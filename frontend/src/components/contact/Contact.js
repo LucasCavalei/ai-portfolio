@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { TextField, Button, Typography } from "@material-ui/core";
 import { Section } from "../../layouts/Section";
 import { sendContactEmail } from "../../services/contactApi";
+import { useLanguage } from "../i18n/LanguageProvider";
 import "./Contact.css";
 
 const INITIAL_FORM = {
@@ -11,6 +12,7 @@ const INITIAL_FORM = {
 };
 
 export const Contact = () => {
+  const { t } = useLanguage();
   const [form, setForm] = useState(INITIAL_FORM);
   const [status, setStatus] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
@@ -31,20 +33,20 @@ export const Contact = () => {
     } catch (error) {
       setStatus("error");
       const apiText = error?.text || error?.message;
-      setErrorMessage(apiText || "Erro desconhecido ao enviar.");
+      setErrorMessage(apiText || t("contact.errorFallback"));
       console.error("EmailJS error:", error);
     }
   };
 
   return (
-    <Section id="contact" title="Contato" subtitle="Vamos conversar">
+    <Section id="contact" title={t("contact.title")} subtitle={t("contact.subtitle")}>
       <div className="contact">
         <div className="contact__intro">
           <Typography variant="h5" component="p" className="contact__headline">
-            Tem um projeto em mente?
+            {t("contact.headline")}
           </Typography>
           <Typography variant="body1" className="contact__description">
-            Envie uma mensagem e retorno o mais breve possível.
+            {t("contact.description")}
           </Typography>
         </div>
         <form onSubmit={sendEmail} className="contact__form" noValidate>
@@ -54,7 +56,7 @@ export const Contact = () => {
             required
             fullWidth
             id="from_name"
-            label="Seu Nome"
+            label={t("contact.name")}
             name="from_name"
             value={form.from_name}
             onChange={handleChange("from_name")}
@@ -66,7 +68,7 @@ export const Contact = () => {
             required
             fullWidth
             id="reply_to"
-            label="Seu E-mail"
+            label={t("contact.email")}
             name="reply_to"
             type="email"
             value={form.reply_to}
@@ -79,7 +81,7 @@ export const Contact = () => {
             required
             fullWidth
             name="message"
-            label="Sua Mensagem"
+            label={t("contact.message")}
             id="message"
             multiline
             rows={4}
@@ -94,11 +96,11 @@ export const Contact = () => {
             className="contact__submit"
             disabled={status === "sending"}
           >
-            {status === "sending" ? "Enviando..." : "Enviar Mensagem"}
+            {status === "sending" ? t("contact.sending") : t("contact.submit")}
           </Button>
           {status === "success" && (
             <Typography className="contact__feedback contact__feedback--success">
-              Mensagem enviada com sucesso!
+              {t("contact.success")}
             </Typography>
           )}
           {status === "error" && (

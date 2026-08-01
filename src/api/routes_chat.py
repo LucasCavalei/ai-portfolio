@@ -49,6 +49,9 @@ def chat_endpoint():
         topico = (dados.get("topico") or "whamais").strip().lower()
         if topico not in ("whamais", "lucas"):
             topico = "whamais"
+        idioma = (dados.get("idioma") or "pt").strip().lower()
+        if idioma not in ("pt", "en"):
+            idioma = "pt"
         
         # 1. Pega o session_id do frontend. Se não vier (primeira mensagem), cria um UUID único na hora.
         session_id = dados.get("session_id", str(uuid.uuid4()))
@@ -57,7 +60,9 @@ def chat_endpoint():
         config = {"configurable": {"thread_id": session_id}}
         
         # 3. Executa o grafo com a memória correta
-        resposta_final = executar_chat(pergunta, session_id, topico=topico)
+        resposta_final = executar_chat(
+            pergunta, session_id, topico=topico, idioma=idioma
+        )
             
         # Calcula tempo de processamento
         processing_time = round((time.time() - start_time) * 1000, 2)

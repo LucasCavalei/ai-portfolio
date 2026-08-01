@@ -1,9 +1,11 @@
 import React from "react";
 import { Send, MessageCircle, X, User, Bot } from "lucide-react";
 import { useChat } from "../../hooks/useChat";
+import { useLanguage } from "../i18n/LanguageProvider";
 import "./Chat.css";
 
 export const Chat = () => {
+  const { t } = useLanguage();
   const {
     messages,
     input,
@@ -24,19 +26,20 @@ export const Chat = () => {
       <button
         className="chat-toggle"
         onClick={() => setIsOpen(true)}
-        title="Abrir chat"
-        aria-label="Abrir assistente virtual"
+        title={t("chat.open")}
+        aria-label={t("chat.openAria")}
       >
         <MessageCircle size={24} />
       </button>
     );
   }
 
-  const headerTitle = topic === "lucas"
-    ? "Assistente — Lucas Rodrigues"
-    : topic === "whamais"
-      ? "Assistente — Whamais"
-      : "Assistente Virtual";
+  const headerTitle =
+    topic === "lucas"
+      ? t("chat.titleLucas")
+      : topic === "whamais"
+        ? t("chat.titleWhamais")
+        : t("chat.title");
 
   return (
     <div className="chat-wrapper" ref={chatRef}>
@@ -46,8 +49,8 @@ export const Chat = () => {
           <button
             className="chat-close"
             onClick={() => setIsOpen(false)}
-            title="Fechar chat"
-            aria-label="Fechar chat"
+            title={t("chat.close")}
+            aria-label={t("chat.close")}
           >
             <X size={20} />
           </button>
@@ -56,9 +59,20 @@ export const Chat = () => {
           {!topic && (
             <div className="chat-topic-picker">
               <p className="chat-topic-picker__intro">
-                Olá! Sou o assistente da <strong>Whamais</strong>.
+                {(() => {
+                  const intro = t("chat.intro", { brand: "Whamais" });
+                  const parts = intro.split("Whamais");
+                  if (parts.length < 2) return intro;
+                  return (
+                    <>
+                      {parts[0]}
+                      <strong>Whamais</strong>
+                      {parts.slice(1).join("Whamais")}
+                    </>
+                  );
+                })()}
                 <br />
-                Sobre o que você quer conversar?
+                {t("chat.introAsk")}
               </p>
               <div className="chat-topic-picker__actions">
                 <button
@@ -66,14 +80,14 @@ export const Chat = () => {
                   className="chat-topic-btn chat-topic-btn--primary"
                   onClick={() => selectTopic("whamais")}
                 >
-                  Conversar sobre a Whamais
+                  {t("chat.topicWhamais")}
                 </button>
                 <button
                   type="button"
                   className="chat-topic-btn"
                   onClick={() => selectTopic("lucas")}
                 >
-                  Conversar sobre o Lucas
+                  {t("chat.topicLucas")}
                 </button>
               </div>
             </div>
@@ -81,7 +95,7 @@ export const Chat = () => {
 
           {topic && (
             <button type="button" className="chat-topic-switch" onClick={resetTopic}>
-              Trocar assunto
+              {t("chat.switchTopic")}
             </button>
           )}
 
@@ -97,7 +111,7 @@ export const Chat = () => {
             <div className="msg-row bot">
               <div className="bubble">
                 <Bot size={16} />
-                Digitando...
+                {t("chat.typing")}
               </div>
             </div>
           )}
@@ -107,18 +121,14 @@ export const Chat = () => {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={
-              topic
-                ? "Digite sua pergunta..."
-                : "Escolha um assunto acima para começar"
-            }
+            placeholder={topic ? t("chat.placeholder") : t("chat.placeholderNoTopic")}
             disabled={isLoading || !topic}
-            aria-label="Mensagem do chat"
+            aria-label={t("chat.inputAria")}
           />
           <button
             type="submit"
             disabled={isLoading || !input.trim() || !topic}
-            aria-label="Enviar mensagem"
+            aria-label={t("chat.sendAria")}
           >
             <Send size={20} />
           </button>

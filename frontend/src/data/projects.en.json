@@ -1,0 +1,37 @@
+[
+  {
+    "id": 1,
+    "title": "WhatsApp Support with AI",
+    "description": "We automate your company's WhatsApp with an intelligent bot that assists customers 24 hours a day.\nIt instantly answers frequently asked questions, offering fast support with automatic scheduling and eliminating wait time.",
+    "alter": "WhatsApp Support with AI",
+    "image": "whatsapp"
+  },
+  {
+    "id": 2,
+    "title": "Political Polling",
+    "description": "Platform for automating electoral surveys: the user triggers calls where a conversational AI agent interviews voters, following a script to capture voting intentions.",
+    "alter": "Political Polling",
+    "image": "eleitoral1"
+  },
+  {
+    "id": 3,
+    "title": "Agro Defense",
+    "description": "Web application developed for the Agro Defense event by the Agricultural and Forestry Defense Agency (ADAF) held at the Vasco Vasques Convention Center. The system was created to interactively present lecture topics, detailing the responsibilities and areas of activity of ADAF.",
+    "alter": "Agro Defense",
+    "image": "agro"
+  },
+  {
+    "id": 4,
+    "title": "Modern Interface Design",
+    "description": "High-performance adaptive interface built Mobile-First. Uses React.js, AngularJS, Tailwind CSS and Grid Layout to deliver a smooth experience on any device, prioritizing speed and accessibility.",
+    "alter": "React Portfolio",
+    "image": "portfolio"
+  },
+  {
+    "id": 5,
+    "title": "Checklist",
+    "description": "Minimalist app focused on personal productivity. Users organize their routine by creating, editing and prioritizing daily tasks.",
+    "alter": "Checklist",
+    "image": "workteam"
+  }
+]

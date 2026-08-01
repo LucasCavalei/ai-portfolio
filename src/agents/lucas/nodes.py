@@ -32,7 +32,9 @@ def _sem_vazamento_tool_no_texto(msg: AIMessage) -> AIMessage:
 
 # Saudações curtas: não dispara busca vetorial automática (evita ruído e custo).
 _SAUDACAO_OU_VAGA = re.compile(
-    r"^(oi|ol[áa]|opa|e a[ií]|tudo bem|td bem|bom dia|boa tarde|boa noite|ok|certo|valeu|obrigad[oa]|blz)\b",
+    r"^(oi|ol[áa]|opa|e a[ií]|tudo bem|td bem|bom dia|boa tarde|boa noite|"
+    r"hi|hello|hey|good morning|good afternoon|good evening|"
+    r"ok|certo|valeu|obrigad[oa]|thanks|thank you|blz)\b",
     re.IGNORECASE,
 )
 
@@ -58,9 +60,27 @@ def _topico(state: State) -> str:
     return t if t in ("whamais", "lucas") else "whamais"
 
 
-def _prompt_bate_papo(topico: str) -> str:
-    if topico == "lucas":
+def _idioma(state: State) -> str:
+    lang = (state.get("idioma") or "pt").strip().lower()
+    return lang if lang in ("pt", "en") else "pt"
+
+
+def _instrucao_idioma(idioma: str) -> str:
+    if idioma == "en":
         return (
+            "\n\nLANGUAGE RULE (mandatory): Always reply in English. "
+            "Even if the knowledge base text is in Portuguese, translate and answer in clear English. "
+            "Do not switch to Portuguese unless the user explicitly asks."
+        )
+    return (
+        "\n\nREGRA DE IDIOMA (obrigatória): Sempre responda em português brasileiro. "
+        "Não mude para inglês a menos que o usuário peça explicitamente."
+    )
+
+
+def _prompt_bate_papo(topico: str, idioma: str = "pt") -> str:
+    if topico == "lucas":
+        base = (
             "Você é um assistente amigável do portfólio de Lucas Rodrigues, "
             "fundador da Whamais. "
             "Sua postura é profissional e prestativa. "
@@ -69,19 +89,21 @@ def _prompt_bate_papo(topico: str) -> str:
             "Se perguntarem o que você faz, diga que ajuda a responder perguntas "
             "sobre a carreira e os projetos do Lucas."
         )
-    return (
-        "Você é o assistente virtual da Whamais — Comunicação Inteligente. "
-        "Sua postura é profissional e prestativa. "
-        "O usuário está apenas puxando assunto ou te cumprimentando. "
-        "Responda de forma breve, educada e natural. "
-        "Se perguntarem o que você faz, diga que ajuda a responder perguntas sobre "
-        "a Whamais (IA, WhatsApp, voz, agenda) e seus serviços."
-    )
+    else:
+        base = (
+            "Você é o assistente virtual da Whamais — Comunicação Inteligente. "
+            "Sua postura é profissional e prestativa. "
+            "O usuário está apenas puxando assunto ou te cumprimentando. "
+            "Responda de forma breve, educada e natural. "
+            "Se perguntarem o que você faz, diga que ajuda a responder perguntas sobre "
+            "a Whamais (IA, WhatsApp, voz, agenda) e seus serviços."
+        )
+    return base + _instrucao_idioma(idioma)
 
 
-def _prompt_especialista(topico: str) -> str:
+def _prompt_especialista(topico: str, idioma: str = "pt") -> str:
     if topico == "lucas":
-        return (
+        base = (
             "Você é um assistente amigável que conversa sobre Lucas Rodrigues, "
             "desenvolvedor Full Stack e fundador da Whamais. "
             "Use a ferramenta 'consultar_base_de_conhecimento' para buscar informações "
@@ -94,50 +116,59 @@ def _prompt_especialista(topico: str) -> str:
             "5. Responda apenas ao que foi perguntado, não adicione informações extras não solicitadas\n"
             "6. Seja breve e direto nas respostas (2-3 frases no máximo)\n"
             "7. Se não tiver a informação, diga que não tem detalhes específicos e ofereça outro assunto sobre a carreira ou projetos dele\n"
-            "8. Use acentuação corretamente (á, é, í, ó, ú, ç, ã, õ)\n"
+            "8. Use acentuação corretamente quando responder em português (á, é, í, ó, ú, ç, ã, õ)\n"
             "9. NUNCA escreva na mensagem ao usuário tags como <function=...>, JSON de ferramenta ou o texto "
             "'consultar_base_de_conhecimento' como se fosse parte da resposta.\n"
             "10. Se perguntarem sobre a empresa, mencione brevemente a Whamais e volte ao foco em Lucas, "
             "salvo se o usuário quiser detalhes da empresa."
         )
-    return (
-        "Você é o assistente oficial da Whamais — Comunicação Inteligente, "
-        "empresa de IA para atendimento e automação (WhatsApp, voz e agenda). "
-        "Use a ferramenta 'consultar_base_de_conhecimento' para buscar informações "
-        "e responder de forma natural e conversada.\n\n"
-        "Instruções importantes:\n"
-        "1. Priorize SEMPRE a Whamais: o que faz, soluções, benefícios e como contratar/conversar\n"
-        "2. Responda de forma CONVERSADA e NATURAL, não como um robô\n"
-        "3. Dê informações de forma GRADUAL - não junte tudo de uma vez\n"
-        "4. Destaque WhatsApp 24h, voz, agendamentos automáticos e comunicação no piloto automático\n"
-        "5. Responda apenas ao que foi perguntado; seja breve (2-3 frases)\n"
-        "6. Se perguntarem sobre Lucas, explique que ele é o fundador/desenvolvedor e ofereça detalhes se quiserem\n"
-        "7. Quando fizer sentido, convide a deixar contato ou falar com a equipe\n"
-        "8. Se não tiver a informação, diga com honestidade e sugira outro ponto sobre a Whamais\n"
-        "9. Use acentuação corretamente (á, é, í, ó, ú, ç, ã, õ)\n"
-        "10. NUNCA escreva na mensagem ao usuário tags como <function=...>, JSON de ferramenta ou o texto "
-        "'consultar_base_de_conhecimento' como se fosse parte da resposta."
+    else:
+        base = (
+            "Você é o assistente oficial da Whamais — Comunicação Inteligente, "
+            "empresa de IA para atendimento e automação (WhatsApp, voz e agenda). "
+            "Use a ferramenta 'consultar_base_de_conhecimento' para buscar informações "
+            "e responder de forma natural e conversada.\n\n"
+            "Instruções importantes:\n"
+            "1. Priorize SEMPRE a Whamais: o que faz, soluções, benefícios e como contratar/conversar\n"
+            "2. Responda de forma CONVERSADA e NATURAL, não como um robô\n"
+            "3. Dê informações de forma GRADUAL - não junte tudo de uma vez\n"
+            "4. Destaque WhatsApp 24h, voz, agendamentos automáticos e comunicação no piloto automático\n"
+            "5. Responda apenas ao que foi perguntado; seja breve (2-3 frases)\n"
+            "6. Se perguntarem sobre Lucas, explique que ele é o fundador/desenvolvedor e ofereça detalhes se quiserem\n"
+            "7. Quando fizer sentido, convide a deixar contato ou falar com a equipe\n"
+            "8. Se não tiver a informação, diga com honestidade e sugira outro ponto sobre a Whamais\n"
+            "9. Use acentuação corretamente quando responder em português (á, é, í, ó, ú, ç, ã, õ)\n"
+            "10. NUNCA escreva na mensagem ao usuário tags como <function=...>, JSON de ferramenta ou o texto "
+            "'consultar_base_de_conhecimento' como se fosse parte da resposta."
+        )
+    return base + _instrucao_idioma(idioma)
+
+
+def _prompt_fallback_rag(topico: str, contexto: str, idioma: str = "pt") -> str:
+    lang_line = (
+        "reply to the user's last message in English, 2–3 sentences, conversational tone.\n"
+        if idioma == "en"
+        else "responda à última mensagem do usuário, em português, 2 a 3 frases, tom conversado.\n"
     )
-
-
-def _prompt_fallback_rag(topico: str, contexto: str) -> str:
     if topico == "lucas":
         return (
             "Você é o assistente do portfólio de Lucas Rodrigues (desenvolvedor e fundador da Whamais). "
             "Use o trecho abaixo da base de conhecimento (currículo, projetos, formação) para "
-            "responder à última mensagem do usuário, em português, 2 a 3 frases, tom conversado.\n"
+            f"{lang_line}"
             "Se o trecho não permitir responder com segurança, diga que não tem detalhes específicos "
             "e sugira outro assunto sobre a carreira ou os projetos dele.\n"
-            "Não mencione 'contexto', 'trecho' ou 'base de dados' na fala.\n\n"
+            "Não mencione 'contexto', 'trecho' ou 'base de dados' na fala.\n"
+            f"{_instrucao_idioma(idioma)}\n\n"
             f"---\n{contexto}\n---"
         )
     return (
         "Você é o assistente da Whamais — Comunicação Inteligente. "
         "Use o trecho abaixo da base de conhecimento (empresa, soluções IA, WhatsApp, voz, agenda) para "
-        "responder à última mensagem do usuário, em português, 2 a 3 frases, tom conversado.\n"
+        f"{lang_line}"
         "Priorize a Whamais. Se o trecho não permitir responder com segurança, diga que não tem "
         "detalhes específicos e sugira outro assunto sobre os serviços da empresa.\n"
-        "Não mencione 'contexto', 'trecho' ou 'base de dados' na fala.\n\n"
+        "Não mencione 'contexto', 'trecho' ou 'base de dados' na fala.\n"
+        f"{_instrucao_idioma(idioma)}\n\n"
         f"---\n{contexto}\n---"
     )
 
@@ -161,7 +192,7 @@ def _resposta_especialista_com_fallback_rag(state: State, rascunho: AIMessage) -
 
     sintese = {
         "role": "system",
-        "content": _prompt_fallback_rag(_topico(state), contexto),
+        "content": _prompt_fallback_rag(_topico(state), contexto, _idioma(state)),
     }
     return llm.invoke([sintese] + state["messages"])
 
@@ -209,7 +240,7 @@ def agente_bate_papo(state: State):
     """Especialista em interações humanas. Não tem acesso a ferramentas."""
     mensagem_sistema = {
         "role": "system",
-        "content": _prompt_bate_papo(_topico(state)),
+        "content": _prompt_bate_papo(_topico(state), _idioma(state)),
     }
     mensagens_para_ia = [mensagem_sistema] + state["messages"]
     resposta = llm.invoke(mensagens_para_ia)
@@ -220,7 +251,7 @@ def agente_especialista(state: State):
     """Especialista Whamais (padrão) ou Lucas, conforme topico no state."""
     mensagem_sistema = {
         "role": "system",
-        "content": _prompt_especialista(_topico(state)),
+        "content": _prompt_especialista(_topico(state), _idioma(state)),
     }
     mensagens_para_ia = [mensagem_sistema] + state["messages"]
     resposta_ia = llm_with_tools.invoke(mensagens_para_ia)
@@ -245,6 +276,8 @@ def agente_cadastro(state: State):
     nome_salvo = state.get("nome")
     cpf_salvo = state.get("cpf")
     telefone_salvo = state.get("telefone")
+    idioma = _idioma(state)
+    en = idioma == "en"
 
     ultima_msg = _conteudo_msg(state["messages"][-1])
 
@@ -275,11 +308,23 @@ def agente_cadastro(state: State):
 
     if not nome_salvo:
         if cpf_salvo:
-            msg = "Anotei o seu CPF. Qual o seu nome completo?"
+            msg = (
+                "Got your CPF. What is your full name?"
+                if en
+                else "Anotei o seu CPF. Qual o seu nome completo?"
+            )
         elif telefone_salvo:
-            msg = "Anotei o seu telefone. Para continuarmos, qual o seu nome completo?"
+            msg = (
+                "Got your phone number. To continue, what is your full name?"
+                if en
+                else "Anotei o seu telefone. Para continuarmos, qual o seu nome completo?"
+            )
         else:
-            msg = "Olá! Para começarmos o seu cadastro, qual é o seu nome completo?"
+            msg = (
+                "Hi! To start your registration, what is your full name?"
+                if en
+                else "Olá! Para começarmos o seu cadastro, qual é o seu nome completo?"
+            )
 
         return {
             "messages": [("assistant", msg)],
@@ -290,7 +335,11 @@ def agente_cadastro(state: State):
         }
 
     if not cpf_salvo:
-        msg = f"Prazer, {nome_salvo}! Agora só preciso do seu CPF."
+        msg = (
+            f"Nice to meet you, {nome_salvo}! Now I just need your CPF."
+            if en
+            else f"Prazer, {nome_salvo}! Agora só preciso do seu CPF."
+        )
         return {
             "messages": [("assistant", msg)],
             "nome": nome_salvo,
@@ -300,7 +349,11 @@ def agente_cadastro(state: State):
         }
 
     if not telefone_salvo:
-        msg = f"Certo, {nome_salvo}! Já anotei seu CPF. Por fim, qual o seu telefone com DDD?"
+        msg = (
+            f"Got it, {nome_salvo}! I've noted your CPF. Finally, what is your phone number with area code?"
+            if en
+            else f"Certo, {nome_salvo}! Já anotei seu CPF. Por fim, qual o seu telefone com DDD?"
+        )
         return {
             "messages": [("assistant", msg)],
             "nome": nome_salvo,
@@ -320,7 +373,9 @@ def agente_cadastro(state: State):
         retorno_str = retorno if isinstance(retorno, str) else str(retorno)
         if _cadastro_foi_persistido(retorno_str):
             mensagem_final = (
-                f"Pronto, {nome_salvo}! Seu cadastro foi salvo com sucesso no sistema."
+                f"All set, {nome_salvo}! Your registration was saved successfully."
+                if en
+                else f"Pronto, {nome_salvo}! Seu cadastro foi salvo com sucesso no sistema."
             )
             return {
                 "messages": [("assistant", mensagem_final)],
@@ -331,8 +386,13 @@ def agente_cadastro(state: State):
             }
         if "não configurado" in retorno_str or "indisponível" in retorno_str.lower():
             msg_usuario = (
-                "Não consegui salvar seu cadastro agora: o banco de dados não está "
-                "disponível. Seus dados continuam só nesta conversa até configurarmos o salvamento."
+                "I couldn't save your registration right now: the database is unavailable. "
+                "Your details remain only in this conversation until we set up persistence."
+                if en
+                else (
+                    "Não consegui salvar seu cadastro agora: o banco de dados não está "
+                    "disponível. Seus dados continuam só nesta conversa até configurarmos o salvamento."
+                )
             )
         else:
             msg_usuario = retorno_str
@@ -346,7 +406,14 @@ def agente_cadastro(state: State):
 
     except Exception as e:
         return {
-            "messages": [("assistant", f"Ops, ocorreu um erro ao salvar: {e}")],
+            "messages": [
+                (
+                    "assistant",
+                    f"Oops, something went wrong while saving: {e}"
+                    if en
+                    else f"Ops, ocorreu um erro ao salvar: {e}",
+                )
+            ],
             "nome": nome_salvo,
             "cpf": cpf_salvo,
             "telefone": telefone_salvo,
@@ -445,10 +512,17 @@ def _intencao_cadastro_explicita(texto: str) -> bool:
             "registr",
             "registar",
             "registrar",
+            "sign up",
+            "sign-up",
+            "register",
+            "leave my contact",
             "deixar contato",
             "meu cpf",
+            "my cpf",
             "meu telefone",
+            "my phone",
             "meu whatsapp",
+            "my whatsapp",
             "deixar whatsapp",
         )
     ):
@@ -466,11 +540,18 @@ def _assistente_pediu_cadastro(texto: str) -> bool:
         x in t
         for x in (
             "cadastro",
+            "registration",
             "nome completo",
+            "full name",
             "seu cpf",
+            "your cpf",
             "seu telefone",
+            "your phone",
             "telefone com ddd",
+            "phone number with area code",
             "anotei o seu cpf",
+            "got your cpf",
             "anotei o seu telefone",
+            "got your phone",
         )
     )

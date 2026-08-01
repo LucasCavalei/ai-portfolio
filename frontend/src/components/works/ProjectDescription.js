@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "@material-ui/core";
 import { ExpandMore } from "@material-ui/icons";
+import { useLanguage } from "../i18n/LanguageProvider";
 
 export const ProjectDescription = ({ description }) => {
+  const { t } = useLanguage();
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [expanded, setExpanded] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
@@ -34,7 +36,7 @@ export const ProjectDescription = ({ description }) => {
   return (
     <div
       className={`description-wrapper${
-        isCollapsed ? " description-wrapper--collapsed" : ""
+        isCollapsed ? " description-wrapper--truncated" : ""
       }${expanded ? " description-wrapper--expanded" : ""}`}
     >
       <p ref={descriptionRef} className="description">
@@ -46,7 +48,7 @@ export const ProjectDescription = ({ description }) => {
           className="description-toggle"
           onClick={() => setExpanded((prev) => !prev)}
           aria-expanded={expanded}
-          aria-label={expanded ? "Recolher descrição" : "Ver descrição completa"}
+          aria-label={expanded ? t("works.collapse") : t("works.expand")}
         >
           <ExpandMore
             className={`description-toggle__icon${

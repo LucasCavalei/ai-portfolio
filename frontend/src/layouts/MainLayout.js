@@ -4,6 +4,7 @@ import DisplacementSphere from "../components/background/DisplacementSphere";
 import { LogoLink } from "../components/logo/LogoLink";
 import { Content } from "../components/content/Content";
 import { ThemeToggle } from "../components/theme/ThemeToggle";
+import { LanguageToggle } from "../components/i18n/LanguageToggle";
 import { SocialIcons } from "../components/content/SocialIcons";
 import { SpeedDials } from "../components/speedDial/SpeedDial";
 import { SideNavbar } from "../components/nav/SideNavbar";
@@ -27,6 +28,7 @@ export const MainLayout = ({ children }) => {
         <DisplacementSphere />
         <LogoLink />
         <Content />
+        <LanguageToggle />
         <ThemeToggle />
         <Hidden smDown>
           <SocialIcons />

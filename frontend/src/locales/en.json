@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "home": "Home",
+    "works": "Projects",
+    "about": "About",
+    "contact": "Contact",
+    "ariaLabel": "Main navigation"
+  },
+  "hero": {
+    "viewProjects": "View Projects",
+    "contact": "Contact"
+  },
+  "works": {
+    "title": "Projects",
+    "subtitle": "Portfolio",
+    "collapse": "Collapse description",
+    "expand": "View full description"
+  },
+  "about": {
+    "title": "About me",
+    "subtitle": "Who I am",
+    "greeting": "Hello!",
+    "bio": "I'm {firstName} {lastName}, a multidisciplinary Full Stack Developer.\nWhile my foundation is web development, I'm expanding into Automation and AI Bots.",
+    "photoAlt": "Photo of {firstName} {lastName}",
+    "cta": "Say hello"
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Let's talk",
+    "headline": "Have a project in mind?",
+    "description": "Send a message and I'll get back to you as soon as possible.",
+    "name": "Your Name",
+    "email": "Your Email",
+    "message": "Your Message",
+    "sending": "Sending...",
+    "submit": "Send Message",
+    "success": "Message sent successfully!",
+    "errorFallback": "Unknown error while sending."
+  },
+  "footer": {
+    "resume": "Resume"
+  },
+  "theme": {
+    "toggle": "Toggle theme"
+  },
+  "language": {
+    "toggle": "Mudar para português",
+    "ariaLabel": "Switch language to Portuguese"
+  },
+  "chat": {
+    "open": "Open chat",
+    "openAria": "Open virtual assistant",
+    "close": "Close chat",
+    "title": "Virtual Assistant",
+    "titleWhamais": "Assistant — Whamais",
+    "titleLucas": "Assistant — Lucas Rodrigues",
+    "intro": "Hi! I'm the {brand} assistant.",
+    "introAsk": "What would you like to talk about?",
+    "topicWhamais": "Talk about Whamais",
+    "topicLucas": "Talk about Lucas",
+    "switchTopic": "Switch topic",
+    "typing": "Typing...",
+    "placeholder": "Type your question...",
+    "placeholderNoTopic": "Choose a topic above to get started",
+    "inputAria": "Chat message",
+    "sendAria": "Send message",
+    "greetingWhamais": "Perfect! I can tell you about Whamais — AI-powered communication solutions, WhatsApp, voice, and scheduling. What would you like to know?",
+    "greetingLucas": "Sure! I can talk about Lucas Rodrigues — his background, skills, and projects. What would you like to know?",
+    "errorPrefix": "Error:",
+    "connectionError": "Could not connect to the server."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "text": "The address you accessed does not exist or has been moved.",
+    "back": "Back to home"
+  }
+}

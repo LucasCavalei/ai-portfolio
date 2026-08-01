@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import { CircularProgress, Box } from "@material-ui/core";
 import { HelmetMeta } from "./HelmetMeta";
 import { ThemeProvider } from "../components/theme/ThemeProvider";
+import { LanguageProvider } from "../components/i18n/LanguageProvider";
 import { CssBaseline } from "@material-ui/core";
 import { logCredits } from "../utils/logCredits";
 import { Home } from "../pages/Home";
@@ -21,17 +22,19 @@ export const App = () => {
 
   return (
     <ThemeProvider>
-      <CssBaseline />
-      <ClickToComponent />
-      <Router>
-        <HelmetMeta />
-        <Suspense fallback={<PageLoader />}>
-          <Switch>
-            <Route path="/" exact component={Home} />
-            <Route path="*" component={PageNotFound} />
-          </Switch>
-        </Suspense>
-      </Router>
+      <LanguageProvider>
+        <CssBaseline />
+        <ClickToComponent />
+        <Router>
+          <HelmetMeta />
+          <Suspense fallback={<PageLoader />}>
+            <Switch>
+              <Route path="/" exact component={Home} />
+              <Route path="*" component={PageNotFound} />
+            </Switch>
+          </Suspense>
+        </Router>
+      </LanguageProvider>
     </ThemeProvider>
   );
 };

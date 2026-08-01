@@ -1,0 +1,65 @@
+{
+  "basics": {
+    "name": "Lucas Rodrigues",
+    "label": "Wahamais Web",
+    "email": "lucassenai1206@gmail.com",
+    "phone": "(92)993368783",
+    "picture": "mt.png",
+    "x_title": "Hi, I am",
+    "job1": "Whamais",
+    "job2": "Web",
+    "tagline": "Full Stack development creating modern web solutions and intelligent automations.",
+    "description": "Web development enthusiast always ready for new challenges! I'm here to help build amazing and functional ideas.",
+    "summary": "Manaus - Amazonas, Brazil",
+    "keywords": "personal,website,portfolio,template,kit,langchain,AI,chatbot,webdev,web,developer,brazil,react,github,linkedin,google,gitlab,telegram,material,design,ui,webapp,markdown",
+    "url": "",
+    "location": {
+      "address": "Your Street, Number",
+      "postalCode": "XXXXX-XXX",
+      "city": "Manaus AM",
+      "country": "Brazil",
+      "countryCode": "BR",
+      "region": "Your State"
+    },
+    "profiles": [
+      {
+        "network": "Google",
+        "username": "lucassenai@gmail.com",
+        "url": "https://mail.google.com/mail/?view=cm&fs=1&to=lucassenai1206@gmail.com",
+        "x_icon": "fab fa-google"
+      },
+      {
+        "network": "LinkedIn",
+        "username": "Lucas Rodrigues",
+        "url": "https://www.linkedin.com/in/lucas-cavaleiro-340677175/",
+        "x_icon": "fab fa-linkedin-in"
+      },
+      {
+        "network": "GitHub",
+        "username": "LucasCavalei",
+        "url": "https://github.com/LucasCavalei",
+        "x_icon": "fab fa-github"
+      }
+    ]
+  },
+
+  "company": {
+    "name": "Whamais",
+    "slogan": "Intelligent Communication",
+    "tagline": "AI specialist for your business: speaks by voice, schedules, and serves on WhatsApp. Your communication on autopilot.",
+    "features": ["Voice", "WhatsApp", "Scheduling", "AI"]
+  },
+
+  "founder": {
+    "label": "Founded and developed by",
+    "role": "Founder & Full Stack Developer"
+  },
+
+  "skills": [
+    {
+      "name": "Web Development",
+      "level": "Master",
+      "keywords": ["HTML", "CSS", "Javascript"]
+    }
+  ]
+}

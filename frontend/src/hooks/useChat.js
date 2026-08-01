@@ -1,15 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { SESSION_STORAGE_KEY, CHAT_TOPIC_STORAGE_KEY } from "../constants/storage";
 import { sendChatMessage } from "../services/chatApi";
-
-const TOPIC_GREETINGS = {
-  whamais:
-    "Perfeito! Posso te contar sobre a Whamais — soluções de comunicação com IA, WhatsApp, voz e agendamentos. O que você gostaria de saber?",
-  lucas:
-    "Certo! Posso falar sobre Lucas Rodrigues — trajetória, skills e projetos. O que você quer saber?",
-};
+import { useLanguage } from "../components/i18n/LanguageProvider";
 
 export const useChat = () => {
+  const { language, t } = useLanguage();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -22,6 +17,7 @@ export const useChat = () => {
   );
   const scrollRef = useRef(null);
   const chatRef = useRef(null);
+  const prevLanguageRef = useRef(language);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -46,14 +42,27 @@ export const useChat = () => {
     };
   }, [isOpen]);
 
+  // Ao trocar o idioma, reinicia a conversa para não misturar PT/EN no histórico.
+  useEffect(() => {
+    if (prevLanguageRef.current === language) return;
+    prevLanguageRef.current = language;
+    setMessages([]);
+    setTopic(null);
+    setSessionId(null);
+    sessionStorage.removeItem(CHAT_TOPIC_STORAGE_KEY);
+    sessionStorage.removeItem(SESSION_STORAGE_KEY);
+  }, [language]);
+
   const selectTopic = (nextTopic) => {
     setTopic(nextTopic);
     sessionStorage.setItem(CHAT_TOPIC_STORAGE_KEY, nextTopic);
+    const greetingKey =
+      nextTopic === "lucas" ? "chat.greetingLucas" : "chat.greetingWhamais";
     setMessages([
       {
         id: Date.now(),
         role: "bot",
-        content: TOPIC_GREETINGS[nextTopic],
+        content: t(greetingKey),
       },
     ]);
   };
@@ -74,7 +83,12 @@ export const useChat = () => {
     setIsLoading(true);
 
     try {
-      const data = await sendChatMessage({ pergunta: text, sessionId, topico: topic });
+      const data = await sendChatMessage({
+        pergunta: text,
+        sessionId,
+        topico: topic,
+        idioma: language,
+      });
       if (data.status === "sucesso") {
         if (data.session_id) {
           setSessionId(data.session_id);
@@ -87,13 +101,17 @@ export const useChat = () => {
       } else {
         setMessages((prev) => [
           ...prev,
-          { id: Date.now() + 1, role: "bot", content: `Erro: ${data.mensagem}` },
+          {
+            id: Date.now() + 1,
+            role: "bot",
+            content: `${t("chat.errorPrefix")} ${data.mensagem}`,
+          },
         ]);
       }
     } catch {
       setMessages((prev) => [
         ...prev,
-        { id: Date.now() + 1, role: "bot", content: "Erro ao conectar com o servidor." },
+        { id: Date.now() + 1, role: "bot", content: t("chat.connectionError") },
       ]);
     } finally {
       setIsLoading(false);

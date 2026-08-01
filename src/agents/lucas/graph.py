@@ -86,15 +86,23 @@ def _ultima_resposta_como_texto(msgs: list) -> str:
     return str(raw).strip()
 
 
-def executar_chat(pergunta: str, session_id: str, topico: str | None = None) -> str:
+def executar_chat(
+    pergunta: str,
+    session_id: str,
+    topico: str | None = None,
+    idioma: str | None = None,
+) -> str:
     """
     Encapsula a chamada ao LangGraph, garantindo que o histórico
     da conversa (memória) seja isolado por session_id.
     topico: "whamais" | "lucas" — define o foco do assistente.
+    idioma: "pt" | "en" — idioma das respostas do assistente.
     """
     config = {"configurable": {"thread_id": session_id}}
     payload: dict = {"messages": [("user", pergunta)]}
     if topico in ("whamais", "lucas"):
         payload["topico"] = topico
+    if idioma in ("pt", "en"):
+        payload["idioma"] = idioma
     resultado = app_graph.invoke(payload, config)
     return _ultima_resposta_como_texto(resultado.get("messages") or [])
